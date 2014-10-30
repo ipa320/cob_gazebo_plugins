@@ -295,6 +295,7 @@ bool MultiHWInterfaceRobotHWSim::canSwitchHWInterface(const std::string &joint_n
 bool MultiHWInterfaceRobotHWSim::doSwitchHWInterface(const std::string &joint_name, const std::string &hwinterface_name)
 {
   ROS_DEBUG_STREAM_NAMED("doSwitchHWInterface", "Joint " << joint_name << " requests HW-Interface of type " << hwinterface_name);
+  readSim(ros::Time(), ros::Duration());
   for(unsigned int i=0; i<joint_names_.size(); i++)
   {
     if(joint_names_[i] == joint_name)
@@ -302,13 +303,42 @@ bool MultiHWInterfaceRobotHWSim::doSwitchHWInterface(const std::string &joint_na
       if(map_hwinterface_to_controlmethod_.find(hwinterface_name)!=map_hwinterface_to_controlmethod_.end())
       {
         ControlMethod current_control_method = map_hwinterface_to_controlmethod_.find(hwinterface_name)->second;
+        
+        joint_position_command_[i] = joint_position_[i];
+        joint_velocity_command_[i] = 0.0;
+        joint_effort_command_[i] = 0.0;
+        
+        ///call setCommand once so that the JointLimitsInterface receive the correct value on their getCommand()!
+        try{  pj_interface_.getHandle(joint_name).setCommand(joint_position_command_[i]);  }
+        catch(const hardware_interface::HardwareInterfaceException&){}
+        try{  vj_interface_.getHandle(joint_name).setCommand(joint_velocity_command_[i]);  }
+        catch(const hardware_interface::HardwareInterfaceException&){}
+        try{  ej_interface_.getHandle(joint_name).setCommand(joint_effort_command_[i]);  }
+        catch(const hardware_interface::HardwareInterfaceException&){}
+        
+        ///call enforceLimits with large period in order to reset their internal prev_cmd_ value!
+        ros::Duration period(1000000000.0);
+        try{  ej_sat_interface_.enforceLimits(period);  }
+        catch(const joint_limits_interface::JointLimitsInterfaceException&){}
+        try{  ej_limits_interface_.enforceLimits(period);  }
+        catch(const joint_limits_interface::JointLimitsInterfaceException&){}
+        try{  pj_sat_interface_.enforceLimits(period);  }
+        catch(const joint_limits_interface::JointLimitsInterfaceException&){}
+        try{  pj_limits_interface_.enforceLimits(period);  }
+        catch(const joint_limits_interface::JointLimitsInterfaceException&){}
+        try{  vj_sat_interface_.enforceLimits(period);  }
+        catch(const joint_limits_interface::JointLimitsInterfaceException&){}
+        try{  vj_limits_interface_.enforceLimits(period);  }
+        catch(const joint_limits_interface::JointLimitsInterfaceException&){}
+        
         joint_control_methods_[i] = current_control_method;
         if(current_control_method == POSITION_PID || current_control_method == VELOCITY_PID)
         {
           pid_controllers_ = map_controlmethod_to_pidcontrollers_.find(current_control_method)->second;
         }
         
-        ROS_DEBUG_STREAM_NAMED("default_robot_hw_sim", "Joint " << joint_name << " now uses HW-Interface type: " << hwinterface_name);
+        ROS_DEBUG_STREAM("Joint " << joint_name << " now uses HW-Interface type: " << hwinterface_name);
+        ROS_DEBUG_STREAM("Joint " << joint_name << " PosCommand: " << joint_position_command_[i] << " VelCommand: " << joint_velocity_command_[i] << " EffCommand: " << joint_effort_command_[i]);
         return true;
       }
     }

@@ -11,7 +11,8 @@ This plugin has originally been discussed and proposed [here](https://github.com
 
 Besides the features provided by the default ```gazebo_ros_control``` plugin, this plugin here adds the following additional features:
  - Support for multiple HardwareInterfaces
- 
+
+--- 
  
 ## Usage
 
@@ -51,7 +52,9 @@ With this plugin, you can now specify multiple HardwareInterfaces for the transm
 ```
 You can specify any HardwareInterface out of [```PositionJointInterface```, ```VelocityJointInterface```, ```EffortJointInterface```]. The order of does not matter.  
 
----
+--- 
+ 
+## Benefit
 
 This plugin allows to use ros\_controllers requiring different HardwareInterfaces within the same gazebo session.  
 (No need to change the URDF for a different control_mode).

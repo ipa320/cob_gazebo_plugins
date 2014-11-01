@@ -97,7 +97,9 @@ void MultiHWInterfaceGazeboRosControlPlugin::Load(gazebo::physics::ModelPtr pare
   // Get the robot simulation interface type
   if(sdf_->HasElement("robotSimType"))
   {
-    robot_hw_sim_type_str_ = sdf_->Get<std::string>("robotSimType");
+    //robot_hw_sim_type_str_ = sdf_->Get<std::string>("robotSimType");
+    robot_hw_sim_type_str_ = "cob_gazebo_ros_control/MultiHWInterfaceRobotHWSim";
+    ROS_WARN_STREAM_NAMED("loadThread","Tag 'robotSimType' is currently ignored. Using default plugin for RobotHWSim \""<<robot_hw_sim_type_str_<<"\"");
   }
   else
   {

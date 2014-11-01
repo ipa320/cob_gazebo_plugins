@@ -66,10 +66,8 @@ bool MultiHWInterfaceRobotHWSim::initSim(
   joint_upper_limits_.resize(n_dof_);
   joint_effort_limits_.resize(n_dof_);
   joint_control_methods_.resize(n_dof_);
-  pid_controllers_.resize(n_dof_);
   map_hwinterface_to_joints_.clear();
   map_hwinterface_to_controlmethod_.clear();
-  map_controlmethod_to_pidcontrollers_.clear();
   joint_position_.resize(n_dof_);
   joint_velocity_.resize(n_dof_);
   joint_effort_.resize(n_dof_);
@@ -77,13 +75,6 @@ bool MultiHWInterfaceRobotHWSim::initSim(
   joint_position_command_.resize(n_dof_);
   joint_velocity_command_.resize(n_dof_);
   
-  std::vector<control_toolbox::Pid> pid_controllers_pos;
-  pid_controllers_pos.resize(n_dof_);
-  map_controlmethod_to_pidcontrollers_.insert( std::pair< ControlMethod, std::vector<control_toolbox::Pid> >(POSITION_PID, pid_controllers_pos) );
-  std::vector<control_toolbox::Pid> pid_controllers_vel;
-  pid_controllers_vel.resize(n_dof_);
-  map_controlmethod_to_pidcontrollers_.insert( std::pair< ControlMethod, std::vector<control_toolbox::Pid> >(VELOCITY_PID, pid_controllers_vel) );
-
   // Initialize values
   for(unsigned int j=0; j < n_dof_; j++)
   {
@@ -173,34 +164,23 @@ bool MultiHWInterfaceRobotHWSim::initSim(
       if(joint_interfaces[i] == "EffortJointInterface")
       {
         // Create effort joint interface
-        if(i==0){ joint_control_methods_[j] = EFFORT; } //use first entry for startup
-        map_hwinterface_to_controlmethod_.insert( std::pair<std::string, ControlMethod>(hw_interface_type, EFFORT) );
+        ControlMethod control_method = EFFORT;
+        if(i==0){ joint_control_methods_[j] = control_method; } //use first entry for startup
+        map_hwinterface_to_controlmethod_.insert( std::pair<std::string, ControlMethod>(hw_interface_type, control_method) );
         
         joint_handle = hardware_interface::JointHandle(js_interface_.getHandle(joint_names_[j]),
                                                       &joint_effort_command_[j]);
         ej_interface_.registerHandle(joint_handle);
         
-        registerJointLimits(joint_names_[j], joint_handle, EFFORT,
+        registerJointLimits(joint_names_[j], joint_handle, control_method,
                         joint_limit_nh, urdf_model,
                         &joint_types_[j], &joint_lower_limits_[j], &joint_upper_limits_[j],
                         &joint_effort_limits_[j]);
       }
       else if(joint_interfaces[i] == "PositionJointInterface")
       {
-        ControlMethod control_method = POSITION;
-        control_toolbox::Pid pid_controller;
-        
-        // Initialize the PID controller. If no PID gain values are found, use joint->SetAngle() or
-        // joint->SetVelocity() to control the joint.
-        const ros::NodeHandle nh(model_nh, robot_namespace + "/gazebo_ros_control/pid_gains/position/" +
-                                 joint_names_[j]);
-        if (pid_controller.init(nh, true))
-        {
-          control_method = POSITION_PID;
-          map_controlmethod_to_pidcontrollers_.find(control_method)->second[j]=pid_controller;
-        }
-          
         // Create position joint interface
+        ControlMethod control_method = POSITION;
         if(i==0){ joint_control_methods_[j] = control_method; } //use first entry for startup
         map_hwinterface_to_controlmethod_.insert( std::pair<std::string, ControlMethod>(hw_interface_type, control_method) );
           
@@ -215,20 +195,8 @@ bool MultiHWInterfaceRobotHWSim::initSim(
       }
       else if(joint_interfaces[i] == "VelocityJointInterface")
       {
-        ControlMethod control_method = VELOCITY;
-        control_toolbox::Pid pid_controller;
-        
-        // Initialize the PID controller. If no PID gain values are found, use joint->SetAngle() or
-        // joint->SetVelocity() to control the joint.
-        const ros::NodeHandle nh(model_nh, robot_namespace + "/gazebo_ros_control/pid_gains/velocity/" +
-                                 joint_names_[j]);
-        if (pid_controller.init(nh, true))
-        {
-          control_method = VELOCITY_PID;
-          map_controlmethod_to_pidcontrollers_.find(control_method)->second[j]=pid_controller;
-        }
-          
         // Create velocity joint interface
+        ControlMethod control_method = VELOCITY;
         if(i==0){ joint_control_methods_[j] = control_method; } //use first entry for startup
         map_hwinterface_to_controlmethod_.insert( std::pair<std::string, ControlMethod>(hw_interface_type, control_method) );
          
@@ -304,6 +272,7 @@ bool MultiHWInterfaceRobotHWSim::doSwitchHWInterface(const std::string &joint_na
       {
         ControlMethod current_control_method = map_hwinterface_to_controlmethod_.find(hwinterface_name)->second;
         
+        ///semantic Zero
         joint_position_command_[i] = joint_position_[i];
         joint_velocity_command_[i] = 0.0;
         joint_effort_command_[i] = 0.0;
@@ -332,10 +301,6 @@ bool MultiHWInterfaceRobotHWSim::doSwitchHWInterface(const std::string &joint_na
         catch(const joint_limits_interface::JointLimitsInterfaceException&){}
         
         joint_control_methods_[i] = current_control_method;
-        if(current_control_method == POSITION_PID || current_control_method == VELOCITY_PID)
-        {
-          pid_controllers_ = map_controlmethod_to_pidcontrollers_.find(current_control_method)->second;
-        }
         
         ROS_DEBUG_STREAM_NAMED("multi_hwi_robot_hw_sim", "Joint " << joint_name << " now uses HW-Interface type: " << hwinterface_name);
         ROS_DEBUG_STREAM_NAMED("multi_hwi_robot_hw_sim", "Joint " << joint_name << " PosCommand: " << joint_position_command_[i] << " VelCommand: " << joint_velocity_command_[i] << " EffCommand: " << joint_effort_command_[i]);

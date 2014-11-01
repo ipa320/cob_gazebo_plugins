@@ -62,7 +62,7 @@ void MultiHWInterfaceGazeboRosControlPlugin::Load(gazebo::physics::ModelPtr pare
   // Error message if the model couldn't be found
   if (!parent_model_)
   {
-    ROS_ERROR_STREAM_NAMED("loadThread","parent model is NULL");
+    ROS_ERROR_STREAM_NAMED("gazebo_ros_control","parent model is NULL");
     return;
   }
 
@@ -99,12 +99,12 @@ void MultiHWInterfaceGazeboRosControlPlugin::Load(gazebo::physics::ModelPtr pare
   {
     //robot_hw_sim_type_str_ = sdf_->Get<std::string>("robotSimType");
     robot_hw_sim_type_str_ = "cob_gazebo_ros_control/MultiHWInterfaceRobotHWSim";
-    ROS_WARN_STREAM_NAMED("loadThread","Tag 'robotSimType' is currently ignored. Using default plugin for RobotHWSim \""<<robot_hw_sim_type_str_<<"\"");
+    ROS_WARN_STREAM_NAMED("gazebo_ros_control","Tag 'robotSimType' is currently ignored. Using default plugin for RobotHWSim \""<<robot_hw_sim_type_str_<<"\"");
   }
   else
   {
     robot_hw_sim_type_str_ = "cob_gazebo_ros_control/MultiHWInterfaceRobotHWSim";
-    ROS_DEBUG_STREAM_NAMED("loadThread","Using default plugin for RobotHWSim (none specified in URDF/SDF)\""<<robot_hw_sim_type_str_<<"\"");
+    ROS_DEBUG_STREAM_NAMED("gazebo_ros_control","Using default plugin for RobotHWSim (none specified in URDF/SDF)\""<<robot_hw_sim_type_str_<<"\"");
   }
   
   // Get the Gazebo simulation period
@@ -168,7 +168,7 @@ void MultiHWInterfaceGazeboRosControlPlugin::Load(gazebo::physics::ModelPtr pare
     }
 
     // Create the controller manager
-    ROS_DEBUG_STREAM_NAMED("ros_control_plugin","Loading controller_manager");
+    ROS_DEBUG_STREAM_NAMED("gazebo_ros_control","Loading controller_manager");
     controller_manager_.reset
       (new cob_gazebo_ros_control::GazeboControllerManager(robot_hw_sim_.get(), model_nh_));
 

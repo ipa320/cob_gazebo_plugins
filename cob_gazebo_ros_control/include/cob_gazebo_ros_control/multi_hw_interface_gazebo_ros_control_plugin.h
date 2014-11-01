@@ -90,7 +90,7 @@ public:
       }
     }
     
-    ROS_INFO("Done switching HW-Interface! Ready to switch Controllers!");
+    ROS_DEBUG("Done switching HW-Interface! Ready to switch Controllers!");
     return true;
   }
 };

@@ -38,11 +38,11 @@ include_directories(include
 )
 
 ## Libraries
-add_library(multi_hw_interface_gazebo_ros_control src/multi_hw_interface_gazebo_ros_control_plugin.cpp)
-target_link_libraries(multi_hw_interface_gazebo_ros_control ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
-
 add_library(multi_hw_interface_robot_hw_sim src/multi_hw_interface_robot_hw_sim.cpp)
 target_link_libraries(multi_hw_interface_robot_hw_sim ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
+
+add_library(multi_hw_interface_gazebo_ros_control src/multi_hw_interface_gazebo_ros_control_plugin.cpp)
+target_link_libraries(multi_hw_interface_gazebo_ros_control multi_hw_interface_robot_hw_sim ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 
 ## Install
 install(TARGETS multi_hw_interface_gazebo_ros_control multi_hw_interface_robot_hw_sim

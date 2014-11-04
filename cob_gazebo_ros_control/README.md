@@ -40,7 +40,7 @@ You can also use the tags ```robotParam``` and ```controlPeriod``` as for the de
 
 The tag ```robotSimType``` is ignored and defaults to ```cob_gazebo_ros_control/MultiHWInterfaceRobotHWSim``` which is a specialized HardwareInterface which is also provided in this package. ```MultiHWInterfaceRobotHWSim``` derives from ```DefaultRobotHWSim``` of the default plugin.  
 
-### Support for multiple HardwareInterfaces
+#### Support for multiple HardwareInterfaces
 
 With this plugin, you can now specify multiple HardwareInterfaces for the transmissions of your joints, like this:  
 ```
@@ -57,7 +57,7 @@ With this plugin, you can now specify multiple HardwareInterfaces for the transm
 ```
 You can specify any HardwareInterface out of [```PositionJointInterface```, ```VelocityJointInterface```, ```EffortJointInterface```]. The order of does not matter.  
 
-### Enable joint filtering
+#### Enable joint filtering
 
 The default ```gazebo_ros_control``` plugin creates JointHandles for all the joints present in your URDF. In order to only assign a specific set of joints to one plugin - and then use several plugins under different ```robotNamespaces``` - you can use the new tag ```filterJointsParam```.
 

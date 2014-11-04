@@ -55,6 +55,25 @@ With this plugin, you can now specify multiple HardwareInterfaces for the transm
 ```
 You can specify any HardwareInterface out of [```PositionJointInterface```, ```VelocityJointInterface```, ```EffortJointInterface```]. The order of does not matter.  
 
+
+The default ```gazebo_ros_control``` plugin creates JointHandles for all the joints present in your URDF. In order to only assign a specific set of joints to one plugin - and then use several plugins under different ```robotNamespaces``` - you can use the new tag ```filterJointsParam```.
+
+```
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libmulti_hw_interface_gazebo_ros_control.so">
+      <robotNamespace>NAMESPACE</robotNamespace>
+      <filterJointsParam>joint_names</filterJointsParam>
+    </plugin>
+  </gazebo>
+```
+
+The plugin will only create JointHandles given in the list loaded to the parameter server under ```/NAMESPACE/joint_names```. In case the parameter cannot be found, the plugin fails to load.
+
+The ```joint_names``` parameter might look like this:
+```joint_names: [arm_1_joint, arm_2_joint, arm_3_joint, arm_4_joint, arm_5_joint, arm_6_joint, arm_7_joint]```
+
+
+
 --- 
  
 ## Benefit

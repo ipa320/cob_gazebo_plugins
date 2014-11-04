@@ -11,6 +11,9 @@ This plugin has originally been discussed and proposed [here](https://github.com
 
 Besides the features provided by the default ```gazebo_ros_control``` plugin, this plugin here adds the following additional features:
  - Support for multiple HardwareInterfaces
+ - Enable joint filtering
+
+__NOTE__: The control\_methods ```POSITION_PID``` and ```VELOCITY_PID``` are not supported anymore, i.e. PID parameters loaded to the parameter server under namespace ```/gazebo_ros_control/pid_gains/``` are ignored. In case you want to command e.g. positions but want to write efforts to Gazebo, use the ```effort_controllers/JointPositionController``` (or similar) and set your PID values thers. 
 
 --- 
  

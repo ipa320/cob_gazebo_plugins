@@ -72,7 +72,7 @@ The default ```gazebo_ros_control``` plugin creates JointHandles for all the joi
 
 The plugin will only create JointHandles given in the list loaded to the parameter server under ```/NAMESPACE/joint_names```. In case the parameter cannot be found, the plugin fails to load.
 
-The ```joint_names``` parameter might look like this:
+The ```joint_names``` parameter might look like this:  
 ```joint_names: [arm_1_joint, arm_2_joint, arm_3_joint, arm_4_joint, arm_5_joint, arm_6_joint, arm_7_joint]```
 
 

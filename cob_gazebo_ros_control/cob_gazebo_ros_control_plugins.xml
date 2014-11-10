@@ -1,0 +1,12 @@
+<library path="lib/libmulti_hw_interface_robot_hw_sim">
+  <class
+    name="cob_gazebo_ros_control/MultiHWInterfaceRobotHWSim"
+    type="cob_gazebo_ros_control::MultiHWInterfaceRobotHWSim"
+    base_class_type="gazebo_ros_control::RobotHWSim">
+    <description>
+      A robot simulation interface which constructs joint handles from an SDF/URDF supporting hardware_interface switching.
+    </description>
+  </class>
+</library>
+
+

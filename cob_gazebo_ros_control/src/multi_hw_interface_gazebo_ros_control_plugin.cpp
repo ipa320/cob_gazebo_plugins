@@ -54,6 +54,7 @@ namespace cob_gazebo_ros_control
 void MultiHWInterfaceGazeboRosControlPlugin::Load(gazebo::physics::ModelPtr parent, sdf::ElementPtr sdf)
 {
   ROS_INFO_STREAM_NAMED("gazebo_ros_control","Loading gazebo_ros_control plugin");
+  enable_joint_filtering_ = false;
 
   // Save pointers to the model
   parent_model_ = parent;
@@ -133,6 +134,20 @@ void MultiHWInterfaceGazeboRosControlPlugin::Load(gazebo::physics::ModelPtr pare
     ROS_DEBUG_STREAM_NAMED("gazebo_ros_control","Control period not found in URDF/SDF, defaulting to Gazebo period of "
       << control_period_);
   }
+  
+  // Determine whether to filter joints
+  if(sdf_->HasElement("filterJointsParam"))
+  {
+    enable_joint_filtering_ = true;
+    filterJointsParam_ = sdf_->Get<std::string>("filterJointsParam");
+    ROS_INFO_STREAM_NAMED("gazebo_ros_control","Enable joint-filtering. Using joint_names from parameter: \""<<filterJointsParam_<<"\"");
+  }
+  else
+  {
+    enable_joint_filtering_ = false;
+    filterJointsParam_ = "";
+    ROS_INFO_STREAM_NAMED("gazebo_ros_control","Joint-filtering is disabled. The plugin will set up JointHandles for all joints!");
+  }
 
 
   // Get parameters/settings for controllers from ROS param server
@@ -152,16 +167,29 @@ void MultiHWInterfaceGazeboRosControlPlugin::Load(gazebo::physics::ModelPtr pare
   // Load the RobotHWSim abstraction to interface the controllers with the gazebo model
   try
   {
-    robot_hw_sim_loader_.reset
-      (new pluginlib::ClassLoader<gazebo_ros_control::RobotHWSim>
-        ("gazebo_ros_control",
-          "gazebo_ros_control::RobotHWSim"));
-
-    robot_hw_sim_ = robot_hw_sim_loader_->createInstance(robot_hw_sim_type_str_);
+    //robot_hw_sim_loader_.reset
+      //(new pluginlib::ClassLoader<gazebo_ros_control::RobotHWSim>
+        //("gazebo_ros_control",
+          //"gazebo_ros_control::RobotHWSim"));
+ 
+    //robot_hw_sim_ = robot_hw_sim_loader_->createInstance(robot_hw_sim_type_str_);
+    
+    multi_hwi_robot_hw_sim_.reset(new cob_gazebo_ros_control::MultiHWInterfaceRobotHWSim());
+    
+    
     urdf::Model urdf_model;
     const urdf::Model *const urdf_model_ptr = urdf_model.initString(urdf_string) ? &urdf_model : NULL;
-
-    if(!robot_hw_sim_->initSim(robot_namespace_, model_nh_, parent_model_, urdf_model_ptr, transmissions_))
+    
+    if(enable_joint_filtering_)
+    {
+      if(!multi_hwi_robot_hw_sim_->enableJointFiltering(model_nh_, filterJointsParam_))
+      {
+        ROS_FATAL_STREAM_NAMED("gazebo_ros_control","Joint-filtering was enabled but param '"<<filterJointsParam_<<"' was not found");
+        return;
+      }
+    }
+    
+    if(!multi_hwi_robot_hw_sim_->initSim(robot_namespace_, model_nh_, parent_model_, urdf_model_ptr, transmissions_))
     {
       ROS_FATAL_NAMED("gazebo_ros_control","Could not initialize robot simulation interface");
       return;
@@ -170,7 +198,7 @@ void MultiHWInterfaceGazeboRosControlPlugin::Load(gazebo::physics::ModelPtr pare
     // Create the controller manager
     ROS_DEBUG_STREAM_NAMED("gazebo_ros_control","Loading controller_manager");
     controller_manager_.reset
-      (new cob_gazebo_ros_control::GazeboControllerManager(robot_hw_sim_.get(), model_nh_));
+      (new cob_gazebo_ros_control::GazeboControllerManager(multi_hwi_robot_hw_sim_.get(), model_nh_));
 
     // Listen to the update event. This event is broadcast every simulation iteration.
     update_connection_ =
@@ -184,6 +212,33 @@ void MultiHWInterfaceGazeboRosControlPlugin::Load(gazebo::physics::ModelPtr pare
   }
 
   ROS_INFO_NAMED("gazebo_ros_control", "Loaded gazebo_ros_control.");
+}
+
+
+// Called by the world update start event
+void MultiHWInterfaceGazeboRosControlPlugin::Update()
+{
+  // Get the simulation time and period
+  gazebo::common::Time gz_time_now = parent_model_->GetWorld()->GetSimTime();
+  ros::Time sim_time_ros(gz_time_now.sec, gz_time_now.nsec);
+  ros::Duration sim_period = sim_time_ros - last_update_sim_time_ros_;
+
+  // Check if we should update the controllers
+  if(sim_period >= control_period_) {
+    // Store this simulation time
+    last_update_sim_time_ros_ = sim_time_ros;
+
+    // Update the robot simulation with the state of the gazebo model
+    multi_hwi_robot_hw_sim_->readSim(sim_time_ros, sim_period);
+
+    // Compute the controller commands
+    controller_manager_->update(sim_time_ros, sim_period);
+  }
+
+  // Update the gazebo model with the result of the controller
+  // computation
+  multi_hwi_robot_hw_sim_->writeSim(sim_time_ros, sim_time_ros - last_write_sim_time_ros_);
+  last_write_sim_time_ros_ = sim_time_ros;
 }
 
 // Register this plugin with the simulator

@@ -11,6 +11,9 @@ This plugin has originally been discussed and proposed [here](https://github.com
 
 Besides the features provided by the default ```gazebo_ros_control``` plugin, this plugin here adds the following additional features:
  - Support for multiple HardwareInterfaces
+ - Enable joint filtering
+
+__NOTE__: The control\_methods ```POSITION_PID``` and ```VELOCITY_PID``` are not supported anymore, i.e. PID parameters loaded to the parameter server under namespace ```/gazebo_ros_control/pid_gains/``` are ignored. In case you want to command e.g. positions but want to write efforts to Gazebo, use the ```effort_controllers/JointPositionController``` (or similar) and set your PID values thers. 
 
 --- 
  
@@ -37,6 +40,8 @@ You can also use the tags ```robotParam``` and ```controlPeriod``` as for the de
 
 The tag ```robotSimType``` is ignored and defaults to ```cob_gazebo_ros_control/MultiHWInterfaceRobotHWSim``` which is a specialized HardwareInterface which is also provided in this package. ```MultiHWInterfaceRobotHWSim``` derives from ```DefaultRobotHWSim``` of the default plugin.  
 
+#### Support for multiple HardwareInterfaces
+
 With this plugin, you can now specify multiple HardwareInterfaces for the transmissions of your joints, like this:  
 ```
     <transmission name="arm_1_trans">
@@ -51,6 +56,26 @@ With this plugin, you can now specify multiple HardwareInterfaces for the transm
     </transmission>
 ```
 You can specify any HardwareInterface out of [```PositionJointInterface```, ```VelocityJointInterface```, ```EffortJointInterface```]. The order of does not matter.  
+
+#### Enable joint filtering
+
+The default ```gazebo_ros_control``` plugin creates JointHandles for all the joints present in your URDF. In order to only assign a specific set of joints to one plugin - and then use several plugins under different ```robotNamespaces``` - you can use the new tag ```filterJointsParam```.
+
+```
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libmulti_hw_interface_gazebo_ros_control.so">
+      <robotNamespace>NAMESPACE</robotNamespace>
+      <filterJointsParam>joint_names</filterJointsParam>
+    </plugin>
+  </gazebo>
+```
+
+The plugin will only create JointHandles given in the list loaded to the parameter server under ```/NAMESPACE/joint_names```. In case the parameter cannot be found, the plugin fails to load.
+
+The ```joint_names``` parameter might look like this:  
+```joint_names: [arm_1_joint, arm_2_joint, arm_3_joint, arm_4_joint, arm_5_joint, arm_6_joint, arm_7_joint]```
+
+
 
 --- 
  

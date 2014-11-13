@@ -103,7 +103,15 @@ public:
 
   // Overloaded Gazebo entry point
   virtual void Load(gazebo::physics::ModelPtr parent, sdf::ElementPtr sdf);
+  
+  // Called by the world update start event
+  void Update();
 
+protected:
+  bool enable_joint_filtering_;
+  std::string filterJointsParam_;
+
+  boost::shared_ptr<cob_gazebo_ros_control::MultiHWInterfaceRobotHWSim> multi_hwi_robot_hw_sim_;
 };
 
 

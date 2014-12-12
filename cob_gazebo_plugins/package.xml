@@ -1,6 +1,6 @@
 <package>
   <name>cob_gazebo_plugins</name>
-  <version>0.6.0</version>
+  <version>0.6.1</version>
   <description>cob_gazebo_plugins meta-package</description>
 
 

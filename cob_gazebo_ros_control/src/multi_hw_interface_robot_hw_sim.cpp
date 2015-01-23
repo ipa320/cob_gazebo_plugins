@@ -335,20 +335,9 @@ bool MultiHWInterfaceRobotHWSim::doSwitchHWInterface(const std::string &joint_na
         try{  ej_interface_.getHandle(joint_name).setCommand(joint_effort_command_[i]);  }
         catch(const hardware_interface::HardwareInterfaceException&){}
         
-        ///call enforceLimits with large period in order to reset their internal prev_cmd_ value!
-        ros::Duration period(1000000000.0);
-        try{  ej_sat_interface_.enforceLimits(period);  }
-        catch(const joint_limits_interface::JointLimitsInterfaceException&){}
-        try{  ej_limits_interface_.enforceLimits(period);  }
-        catch(const joint_limits_interface::JointLimitsInterfaceException&){}
-        try{  pj_sat_interface_.enforceLimits(period);  }
-        catch(const joint_limits_interface::JointLimitsInterfaceException&){}
-        try{  pj_limits_interface_.enforceLimits(period);  }
-        catch(const joint_limits_interface::JointLimitsInterfaceException&){}
-        try{  vj_sat_interface_.enforceLimits(period);  }
-        catch(const joint_limits_interface::JointLimitsInterfaceException&){}
-        try{  vj_limits_interface_.enforceLimits(period);  }
-        catch(const joint_limits_interface::JointLimitsInterfaceException&){}
+        ///reset joint_limit_interfaces
+        pj_sat_interface_.reset();
+        pj_limits_interface_.reset();
         
         joint_control_methods_[i] = current_control_method;
         

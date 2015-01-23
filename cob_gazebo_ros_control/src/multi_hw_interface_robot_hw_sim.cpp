@@ -135,18 +135,18 @@ bool MultiHWInterfaceRobotHWSim::initSim(
     {
       if(enabled_joints_.find(transmissions[j].joints_[0].name_)!=enabled_joints_.end())
       {
-        ROS_INFO_STREAM_NAMED("multi_hwi_robot_hw_sim", "Found enabled joint '"<<transmissions[j].joints_[0].name_<<"'; j "<<j<<"; index: "<<index);
+        ROS_DEBUG_STREAM_NAMED("multi_hwi_robot_hw_sim", "Found enabled joint '"<<transmissions[j].joints_[0].name_<<"'; j "<<j<<"; index: "<<index);
       }
       else
       {
-        ROS_INFO_STREAM_NAMED("multi_hwi_robot_hw_sim", "Joint '"<<transmissions[j].joints_[0].name_<<"' is not enabled; j "<<j<<"; index: "<<index);
+        ROS_DEBUG_STREAM_NAMED("multi_hwi_robot_hw_sim", "Joint '"<<transmissions[j].joints_[0].name_<<"' is not enabled; j "<<j<<"; index: "<<index);
         continue;
       }
     }
     else
     {
       index = j;
-      ROS_INFO_STREAM_NAMED("multi_hwi_robot_hw_sim", "JointFiltering is disabled. Use joint '"<<transmissions[j].joints_[0].name_<<"'; j "<<j<<"; index: "<<index);
+      ROS_DEBUG_STREAM_NAMED("multi_hwi_robot_hw_sim", "JointFiltering is disabled. Use joint '"<<transmissions[j].joints_[0].name_<<"'; j "<<j<<"; index: "<<index);
     }
     
     // Add data from transmission

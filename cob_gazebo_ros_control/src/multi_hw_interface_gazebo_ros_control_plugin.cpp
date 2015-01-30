@@ -53,7 +53,7 @@ namespace cob_gazebo_ros_control
 // Overloaded Gazebo entry point
 void MultiHWInterfaceGazeboRosControlPlugin::Load(gazebo::physics::ModelPtr parent, sdf::ElementPtr sdf)
 {
-  ROS_INFO_STREAM_NAMED("gazebo_ros_control","Loading gazebo_ros_control plugin");
+  ROS_INFO_STREAM_NAMED("cob_gazebo_ros_control","Loading cob_gazebo_ros_control plugin");
   enable_joint_filtering_ = false;
 
   // Save pointers to the model
@@ -63,14 +63,14 @@ void MultiHWInterfaceGazeboRosControlPlugin::Load(gazebo::physics::ModelPtr pare
   // Error message if the model couldn't be found
   if (!parent_model_)
   {
-    ROS_ERROR_STREAM_NAMED("gazebo_ros_control","parent model is NULL");
+    ROS_ERROR_STREAM_NAMED("cob_gazebo_ros_control","parent model is NULL");
     return;
   }
 
   // Check that ROS has been initialized
   if(!ros::isInitialized())
   {
-    ROS_FATAL_STREAM_NAMED("gazebo_ros_control","A ROS node for Gazebo has not been initialized, unable to load plugin. "
+    ROS_FATAL_STREAM_NAMED("cob_gazebo_ros_control","A ROS node for Gazebo has not been initialized, unable to load plugin. "
       << "Load the Gazebo system plugin 'libgazebo_ros_api_plugin.so' in the gazebo_ros package)");
     return;
   }
@@ -100,12 +100,12 @@ void MultiHWInterfaceGazeboRosControlPlugin::Load(gazebo::physics::ModelPtr pare
   {
     //robot_hw_sim_type_str_ = sdf_->Get<std::string>("robotSimType");
     robot_hw_sim_type_str_ = "cob_gazebo_ros_control/MultiHWInterfaceRobotHWSim";
-    ROS_WARN_STREAM_NAMED("gazebo_ros_control","Tag 'robotSimType' is currently ignored. Using default plugin for RobotHWSim \""<<robot_hw_sim_type_str_<<"\"");
+    ROS_WARN_STREAM_NAMED("cob_gazebo_ros_control","Tag 'robotSimType' is currently ignored. Using default plugin for RobotHWSim \""<<robot_hw_sim_type_str_<<"\"");
   }
   else
   {
     robot_hw_sim_type_str_ = "cob_gazebo_ros_control/MultiHWInterfaceRobotHWSim";
-    ROS_DEBUG_STREAM_NAMED("gazebo_ros_control","Using default plugin for RobotHWSim (none specified in URDF/SDF)\""<<robot_hw_sim_type_str_<<"\"");
+    ROS_DEBUG_STREAM_NAMED("cob_gazebo_ros_control","Using default plugin for RobotHWSim (none specified in URDF/SDF)\""<<robot_hw_sim_type_str_<<"\"");
   }
   
   // Get the Gazebo simulation period
@@ -119,19 +119,19 @@ void MultiHWInterfaceGazeboRosControlPlugin::Load(gazebo::physics::ModelPtr pare
     // Check the period against the simulation period
     if( control_period_ < gazebo_period )
     {
-      ROS_ERROR_STREAM_NAMED("gazebo_ros_control","Desired controller update period ("<<control_period_
+      ROS_ERROR_STREAM_NAMED("cob_gazebo_ros_control","Desired controller update period ("<<control_period_
         <<" s) is faster than the gazebo simulation period ("<<gazebo_period<<" s).");
     }
     else if( control_period_ > gazebo_period )
     {
-      ROS_WARN_STREAM_NAMED("gazebo_ros_control","Desired controller update period ("<<control_period_
+      ROS_WARN_STREAM_NAMED("cob_gazebo_ros_control","Desired controller update period ("<<control_period_
         <<" s) is slower than the gazebo simulation period ("<<gazebo_period<<" s).");
     }
   }
   else
   {
     control_period_ = gazebo_period;
-    ROS_DEBUG_STREAM_NAMED("gazebo_ros_control","Control period not found in URDF/SDF, defaulting to Gazebo period of "
+    ROS_DEBUG_STREAM_NAMED("cob_gazebo_ros_control","Control period not found in URDF/SDF, defaulting to Gazebo period of "
       << control_period_);
   }
   
@@ -140,19 +140,19 @@ void MultiHWInterfaceGazeboRosControlPlugin::Load(gazebo::physics::ModelPtr pare
   {
     enable_joint_filtering_ = true;
     filterJointsParam_ = sdf_->Get<std::string>("filterJointsParam");
-    ROS_INFO_STREAM_NAMED("gazebo_ros_control","Enable joint-filtering. Using joint_names from parameter: \""<<filterJointsParam_<<"\"");
+    ROS_INFO_STREAM_NAMED("cob_gazebo_ros_control","Enable joint-filtering. Using joint_names from parameter: \""<<filterJointsParam_<<"\"");
   }
   else
   {
     enable_joint_filtering_ = false;
     filterJointsParam_ = "";
-    ROS_INFO_STREAM_NAMED("gazebo_ros_control","Joint-filtering is disabled. The plugin will set up JointHandles for all joints!");
+    ROS_INFO_STREAM_NAMED("cob_gazebo_ros_control","Joint-filtering is disabled. The plugin will set up JointHandles for all joints!");
   }
 
 
   // Get parameters/settings for controllers from ROS param server
   model_nh_ = ros::NodeHandle(robot_namespace_);
-  ROS_INFO_NAMED("gazebo_ros_control", "Starting gazebo_ros_control plugin in namespace: %s", robot_namespace_.c_str());
+  ROS_INFO_NAMED("cob_gazebo_ros_control", "Starting cob_gazebo_ros_control plugin in namespace: %s", robot_namespace_.c_str());
 
   // Read urdf from ros parameter server then
   // setup actuators and mechanism control node.
@@ -160,7 +160,7 @@ void MultiHWInterfaceGazeboRosControlPlugin::Load(gazebo::physics::ModelPtr pare
   const std::string urdf_string = getURDF(robot_description_);
   if (!parseTransmissionsFromURDF(urdf_string))
   {
-    ROS_ERROR_NAMED("gazebo_ros_control", "Error parsing URDF in gazebo_ros_control plugin, plugin not active.\n");
+    ROS_ERROR_NAMED("cob_gazebo_ros_control", "Error parsing URDF in cob_gazebo_ros_control plugin, plugin not active.\n");
     return;
   }
 
@@ -184,19 +184,19 @@ void MultiHWInterfaceGazeboRosControlPlugin::Load(gazebo::physics::ModelPtr pare
     {
       if(!multi_hwi_robot_hw_sim_->enableJointFiltering(model_nh_, filterJointsParam_))
       {
-        ROS_FATAL_STREAM_NAMED("gazebo_ros_control","Joint-filtering was enabled but param '"<<filterJointsParam_<<"' was not found");
+        ROS_FATAL_STREAM_NAMED("cob_gazebo_ros_control","Joint-filtering was enabled but param '"<<filterJointsParam_<<"' was not found");
         return;
       }
     }
     
     if(!multi_hwi_robot_hw_sim_->initSim(robot_namespace_, model_nh_, parent_model_, urdf_model_ptr, transmissions_))
     {
-      ROS_FATAL_NAMED("gazebo_ros_control","Could not initialize robot simulation interface");
+      ROS_FATAL_NAMED("cob_gazebo_ros_control","Could not initialize robot simulation interface");
       return;
     }
 
     // Create the controller manager
-    ROS_DEBUG_STREAM_NAMED("gazebo_ros_control","Loading controller_manager");
+    ROS_DEBUG_STREAM_NAMED("cob_gazebo_ros_control","Loading controller_manager");
     controller_manager_.reset
       (new cob_gazebo_ros_control::GazeboControllerManager(multi_hwi_robot_hw_sim_.get(), model_nh_));
 
@@ -208,10 +208,10 @@ void MultiHWInterfaceGazeboRosControlPlugin::Load(gazebo::physics::ModelPtr pare
   }
   catch(pluginlib::LibraryLoadException &ex)
   {
-    ROS_FATAL_STREAM_NAMED("gazebo_ros_control","Failed to create robot simulation interface loader: "<<ex.what());
+    ROS_FATAL_STREAM_NAMED("cob_gazebo_ros_control","Failed to create robot simulation interface loader: "<<ex.what());
   }
 
-  ROS_INFO_NAMED("gazebo_ros_control", "Loaded gazebo_ros_control.");
+  ROS_INFO_NAMED("cob_gazebo_ros_control", "Loaded cob_gazebo_ros_control.");
 }
 
 

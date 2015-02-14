@@ -300,56 +300,67 @@ bool MultiHWInterfaceRobotHWSim::enableJointFiltering(ros::NodeHandle nh, std::s
   return true;
 }
 
-bool MultiHWInterfaceRobotHWSim::canSwitchHWInterface(const std::string &joint_name, const std::string &hwinterface_name)
+
+
+bool MultiHWInterfaceRobotHWSim::canStart(const hardware_interface::ControllerInfo &info) const
 {
-  ROS_DEBUG_STREAM_NAMED("multi_hwi_robot_hw_sim", "Joint " << joint_name << " requests HW-Interface of type " << hwinterface_name);
-  std::map< std::string, std::set<std::string> >::iterator it = map_hwinterface_to_joints_.find(hwinterface_name);
-  if(it->second.find(joint_name)!=it->second.end()) { return true; }
+  //get the set containing all resources providing the requested hardware_interface
+  std::map< std::string, std::set<std::string> >::const_iterator it = map_hwinterface_to_joints_.find(info.hardware_interface);
   
-  ROS_ERROR_STREAM_NAMED("multi_hwi_robot_hw_sim", "Joint " << joint_name << " does not provide a HW-Interface of type " << hwinterface_name);
-  return false;
+  for(std::set<std::string>::iterator set_it=info.resources.begin(); set_it!=info.resources.end(); ++set_it)
+  {
+    ROS_DEBUG_STREAM_NAMED("multi_hwi_robot_hw_sim", "HW-Interface \'" << info.hardware_interface << "\' is requested for Resource \'" << *set_it << "\'");
+    if(it->second.find(*set_it)==it->second.end())
+    {
+      ROS_ERROR_STREAM_NAMED("multi_hwi_robot_hw_sim", "Resource \'" << *set_it << "\' does not provide HW-Interface \'" << info.hardware_interface << "\'");
+      return false;
+    }
+  }
+  return true;
 }
 
-bool MultiHWInterfaceRobotHWSim::doSwitchHWInterface(const std::string &joint_name, const std::string &hwinterface_name)
+
+void MultiHWInterfaceRobotHWSim::doSwitch(const std::list<hardware_interface::ControllerInfo> &start_list, const std::list<hardware_interface::ControllerInfo> &stop_list)
 {
-  ROS_DEBUG_STREAM_NAMED("multi_hwi_robot_hw_sim", "Joint " << joint_name << " requests HW-Interface of type " << hwinterface_name);
-  readSim(ros::Time(), ros::Duration());
-  for(unsigned int i=0; i<joint_names_.size(); i++)
+  //for all controllers to be started
+  for (std::list<hardware_interface::ControllerInfo>::const_iterator list_it=start_list.begin(); list_it != start_list.end(); ++list_it)
   {
-    if(joint_names_[i] == joint_name)
+    std::map< std::string, std::set<std::string> >::const_iterator map_it = map_hwinterface_to_joints_.find(list_it->hardware_interface);
+    
+    //for all joints corresponding to this RobotHW
+    for(unsigned int i=0; i<joint_names_.size(); i++)
     {
-      if(map_hwinterface_to_controlmethod_.find(hwinterface_name)!=map_hwinterface_to_controlmethod_.end())
+      //if joint is in resource list
+      if(list_it->resources.find(joint_names_[i])!=list_it->resources.end())
       {
-        ControlMethod current_control_method = map_hwinterface_to_controlmethod_.find(hwinterface_name)->second;
-        
-        ///semantic Zero
-        joint_position_command_[i] = joint_position_[i];
-        joint_velocity_command_[i] = 0.0;
-        joint_effort_command_[i] = 0.0;
-        
-        ///call setCommand once so that the JointLimitsInterface receive the correct value on their getCommand()!
-        try{  pj_interface_.getHandle(joint_name).setCommand(joint_position_command_[i]);  }
-        catch(const hardware_interface::HardwareInterfaceException&){}
-        try{  vj_interface_.getHandle(joint_name).setCommand(joint_velocity_command_[i]);  }
-        catch(const hardware_interface::HardwareInterfaceException&){}
-        try{  ej_interface_.getHandle(joint_name).setCommand(joint_effort_command_[i]);  }
-        catch(const hardware_interface::HardwareInterfaceException&){}
-        
-        ///reset joint_limit_interfaces
-        pj_sat_interface_.reset();
-        pj_limits_interface_.reset();
-        
-        joint_control_methods_[i] = current_control_method;
-        
-        ROS_DEBUG_STREAM_NAMED("multi_hwi_robot_hw_sim", "Joint " << joint_name << " now uses HW-Interface type: " << hwinterface_name);
-        ROS_DEBUG_STREAM_NAMED("multi_hwi_robot_hw_sim", "Joint " << joint_name << " PosCommand: " << joint_position_command_[i] << " VelCommand: " << joint_velocity_command_[i] << " EffCommand: " << joint_effort_command_[i]);
-        return true;
+        if(map_hwinterface_to_controlmethod_.find(list_it->hardware_interface)!=map_hwinterface_to_controlmethod_.end())
+        {
+          ControlMethod current_control_method = map_hwinterface_to_controlmethod_.find(list_it->hardware_interface)->second;
+          
+          ///semantic Zero
+          joint_position_command_[i] = joint_position_[i];
+          joint_velocity_command_[i] = 0.0;
+          joint_effort_command_[i] = 0.0;
+          
+          ///call setCommand once so that the JointLimitsInterface receive the correct value on their getCommand()!
+          try{  pj_interface_.getHandle(joint_names_[i]).setCommand(joint_position_command_[i]);  }
+          catch(const hardware_interface::HardwareInterfaceException&){}
+          try{  vj_interface_.getHandle(joint_names_[i]).setCommand(joint_velocity_command_[i]);  }
+          catch(const hardware_interface::HardwareInterfaceException&){}
+          try{  ej_interface_.getHandle(joint_names_[i]).setCommand(joint_effort_command_[i]);  }
+          catch(const hardware_interface::HardwareInterfaceException&){}
+          
+          ///reset joint_limit_interfaces
+          pj_sat_interface_.reset();
+          pj_limits_interface_.reset();
+          
+          joint_control_methods_[i] = current_control_method;
+          
+          ROS_DEBUG_STREAM_NAMED("multi_hwi_robot_hw_sim", "Resource \'" << joint_names_[i] << "\' switched to HW-Interface \'" << list_it->hardware_interface << "\'");
+        }
       }
     }
   }
-  
-  ROS_ERROR_STREAM_NAMED("multi_hwi_robot_hw_sim", "An error occured while trying to switch HW-Interface for Joint " << joint_name << " (HW-Interface type: " << hwinterface_name << ")");
-  return false;
 }
 
 }

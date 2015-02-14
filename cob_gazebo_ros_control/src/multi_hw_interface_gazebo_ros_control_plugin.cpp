@@ -198,7 +198,7 @@ void MultiHWInterfaceGazeboRosControlPlugin::Load(gazebo::physics::ModelPtr pare
     // Create the controller manager
     ROS_DEBUG_STREAM_NAMED("cob_gazebo_ros_control","Loading controller_manager");
     controller_manager_.reset
-      (new cob_gazebo_ros_control::GazeboControllerManager(multi_hwi_robot_hw_sim_.get(), model_nh_));
+      (new controller_manager::ControllerManager(multi_hwi_robot_hw_sim_.get(), model_nh_));
 
     // Listen to the update event. This event is broadcast every simulation iteration.
     update_connection_ =

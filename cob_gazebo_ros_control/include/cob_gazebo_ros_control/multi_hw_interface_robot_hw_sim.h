@@ -47,7 +47,6 @@
 #include <gazebo_ros_control/default_robot_hw_sim.h>
 
 
-
 namespace cob_gazebo_ros_control
 {
 
@@ -64,8 +63,8 @@ public:
   
   virtual bool enableJointFiltering(ros::NodeHandle nh, std::string filter_joints_param);
   
-  virtual bool canSwitchHWInterface(const std::string &joint_name, const std::string &hwinterface_name);
-  virtual bool doSwitchHWInterface(const std::string &joint_name, const std::string &hwinterface_name);
+  virtual bool canStart(const hardware_interface::ControllerInfo &info) const;
+  virtual void doSwitch(const std::list<hardware_interface::ControllerInfo> &start_list, const std::list<hardware_interface::ControllerInfo> &stop_list);
 
 protected:
 

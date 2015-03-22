@@ -70,6 +70,10 @@ bool HWISwitchRobotHWSim::initSim(
     ROS_INFO_STREAM("JointFiltering is disabled! DoF: "<<n_dof_);
   }
   
+  position_joints_.clear();
+  position_joints_.insert("test_joint");
+  
+  
   joint_names_.resize(n_dof_);
   joint_types_.resize(n_dof_);
   joint_lower_limits_.resize(n_dof_);
@@ -301,18 +305,20 @@ bool HWISwitchRobotHWSim::enableJointFiltering(ros::NodeHandle nh, std::string f
 
 
 
-bool HWISwitchRobotHWSim::canStart(const hardware_interface::ControllerInfo &info) const
+bool HWISwitchRobotHWSim::canSwitch(const std::list<hardware_interface::ControllerInfo> &start_list, const std::list<hardware_interface::ControllerInfo> &stop_list) const
 {
-  //get the set containing all resources providing the requested hardware_interface
-  std::map< std::string, std::set<std::string> >::const_iterator it = map_hwinterface_to_joints_.find(info.hardware_interface);
-  
-  for(std::set<std::string>::iterator set_it=info.resources.begin(); set_it!=info.resources.end(); ++set_it)
+  //for all controllers to be started check whether all resources provide the required hardware_interface
+  //conflicts, i.e. different hardware_interfaces for the same resource is checked in checkForConflict()
+  //stopped controllers stay in there current mode as there is no no_operation_mode in gazebo
+  for (std::list<hardware_interface::ControllerInfo>::const_iterator list_it = start_list.begin(); list_it != start_list.end(); ++list_it)
   {
-    ROS_DEBUG_STREAM_NAMED("hwi_switch_robot_hw_sim", "HW-Interface \'" << info.hardware_interface << "\' is requested for Resource \'" << *set_it << "\'");
-    if(it->second.find(*set_it)==it->second.end())
+    for(std::set<std::string>::iterator set_it = list_it->resources.begin(); set_it != list_it->resources.end(); ++set_it)
     {
-      ROS_ERROR_STREAM_NAMED("hwi_switch_robot_hw_sim", "Resource \'" << *set_it << "\' does not provide HW-Interface \'" << info.hardware_interface << "\'");
-      return false;
+      if(map_hwinterface_to_joints_.at(list_it->hardware_interface).find(*set_it) == map_hwinterface_to_joints_.at(list_it->hardware_interface).end())
+      {
+        ROS_ERROR_STREAM_NAMED("hwi_switch_robot_hw_sim", "Cannot switch because resource \'" << *set_it << "\' does not provide HW-Interface \'" << list_it->hardware_interface << "\'");
+        return false;
+      }
     }
   }
   return true;
@@ -322,17 +328,15 @@ bool HWISwitchRobotHWSim::canStart(const hardware_interface::ControllerInfo &inf
 void HWISwitchRobotHWSim::doSwitch(const std::list<hardware_interface::ControllerInfo> &start_list, const std::list<hardware_interface::ControllerInfo> &stop_list)
 {
   //for all controllers to be started
-  for (std::list<hardware_interface::ControllerInfo>::const_iterator list_it=start_list.begin(); list_it != start_list.end(); ++list_it)
+  for (std::list<hardware_interface::ControllerInfo>::const_iterator list_it = start_list.begin(); list_it != start_list.end(); ++list_it)
   {
-    std::map< std::string, std::set<std::string> >::const_iterator map_it = map_hwinterface_to_joints_.find(list_it->hardware_interface);
-    
     //for all joints corresponding to this RobotHW
     for(unsigned int i=0; i<joint_names_.size(); i++)
     {
-      //if joint is in resource list
-      if(list_it->resources.find(joint_names_[i])!=list_it->resources.end())
+      //if joint is in resource list of controller to be started
+      if(list_it->resources.find(joint_names_[i]) != list_it->resources.end())
       {
-        if(map_hwinterface_to_controlmethod_.find(list_it->hardware_interface)!=map_hwinterface_to_controlmethod_.end())
+        if(map_hwinterface_to_controlmethod_.find(list_it->hardware_interface) != map_hwinterface_to_controlmethod_.end())
         {
           ControlMethod current_control_method = map_hwinterface_to_controlmethod_.find(list_it->hardware_interface)->second;
           

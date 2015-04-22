@@ -10,7 +10,7 @@ It extends the default plugin available in [gazebo_ros_control](https://github.c
 This plugin has originally been discussed and proposed [here](https://github.com/ros-simulation/gazebo_ros_pkgs/pull/256).
 
 Besides the features provided by the default ```gazebo_ros_control``` plugin, this plugin here adds the following additional features:
- - Support for multiple HardwareInterfaces
+ - Support for HardwareInterface-Switching
  - Enable joint filtering
 
 __NOTE__: The control\_methods ```POSITION_PID``` and ```VELOCITY_PID``` are not supported anymore, i.e. PID parameters loaded to the parameter server under namespace ```/gazebo_ros_control/pid_gains/``` are ignored. In case you want to command e.g. positions but want to write efforts to Gazebo, use the ```effort_controllers/JointPositionController``` (or similar) and set your PID values thers. 
@@ -25,7 +25,7 @@ To use the plugin, add the following to your robot's URDF:
 
 ```
   <gazebo>
-    <plugin name="gazebo_ros_control" filename="libmulti_hw_interface_gazebo_ros_control.so">
+    <plugin name="gazebo_ros_control" filename="libhwi_switch_gazebo_ros_control.so">
       <robotNamespace>NAMESPACE</robotNamespace>
     </plugin>
   </gazebo>
@@ -38,9 +38,9 @@ __NOTE__: Do not use a trailing '/' before NAMESPACE!
 
 You can also use the tags ```robotParam``` and ```controlPeriod``` as for the default plugin.
 
-The tag ```robotSimType``` is ignored and defaults to ```cob_gazebo_ros_control/MultiHWInterfaceRobotHWSim``` which is a specialized HardwareInterface which is also provided in this package. ```MultiHWInterfaceRobotHWSim``` derives from ```DefaultRobotHWSim``` of the default plugin.  
+The tag ```robotSimType``` is ignored and defaults to ```cob_gazebo_ros_control/HWISwitchRobotHWSim``` which is a specialized HardwareInterface which is also provided in this package. ```HWISwitchRobotHWSim``` derives from ```DefaultRobotHWSim``` of the default plugin.  
 
-#### Support for multiple HardwareInterfaces
+#### Support for HardwareInterface-Switching
 
 With this plugin, you can now specify multiple HardwareInterfaces for the transmissions of your joints, like this:  
 ```
@@ -63,7 +63,7 @@ The default ```gazebo_ros_control``` plugin creates JointHandles for all the joi
 
 ```
   <gazebo>
-    <plugin name="gazebo_ros_control" filename="libmulti_hw_interface_gazebo_ros_control.so">
+    <plugin name="gazebo_ros_control" filename="libhwi_switch_gazebo_ros_control.so">
       <robotNamespace>NAMESPACE</robotNamespace>
       <filterJointsParam>joint_names</filterJointsParam>
     </plugin>

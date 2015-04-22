@@ -36,18 +36,18 @@
  *********************************************************************/
 
 /* Author: Dave Coleman, Johnathan Bohren, Felix Messmer
-   Desc:   Hardware Interface for any simulated robot in Gazebo supporting multiple hardware_interfaces
+   Desc:   Hardware Interface for any simulated robot in Gazebo supporting hardware_interface switching
 */
 
 
 // cob_gazebo_ros_control
-#include <cob_gazebo_ros_control/multi_hw_interface_robot_hw_sim.h>
+#include <cob_gazebo_ros_control/hwi_switch_robot_hw_sim.h>
 
 
 namespace cob_gazebo_ros_control
 {
 
-bool MultiHWInterfaceRobotHWSim::initSim(
+bool HWISwitchRobotHWSim::initSim(
   const std::string& robot_namespace,
   ros::NodeHandle model_nh,
   gazebo::physics::ModelPtr parent_model,
@@ -69,6 +69,9 @@ bool MultiHWInterfaceRobotHWSim::initSim(
     n_dof_ = transmissions.size();
     ROS_INFO_STREAM("JointFiltering is disabled! DoF: "<<n_dof_);
   }
+  
+  position_joints_.clear();
+  position_joints_.insert("test_joint");
   
   
   joint_names_.resize(n_dof_);
@@ -93,13 +96,13 @@ bool MultiHWInterfaceRobotHWSim::initSim(
     // Check that this transmission has one joint
     if(transmissions[j].joints_.size() == 0)
     {
-      ROS_WARN_STREAM_NAMED("multi_hwi_robot_hw_sim","Transmission " << transmissions[j].name_
+      ROS_WARN_STREAM_NAMED("hwi_switch_robot_hw_sim","Transmission " << transmissions[j].name_
         << " has no associated joints.");
       continue;
     }
     else if(transmissions[j].joints_.size() > 1)
     {
-      ROS_WARN_STREAM_NAMED("multi_hwi_robot_hw_sim","Transmission " << transmissions[j].name_
+      ROS_WARN_STREAM_NAMED("hwi_switch_robot_hw_sim","Transmission " << transmissions[j].name_
         << " has more than one joint. Currently the default robot hardware simulation "
         << " interface only supports one.");
       continue;
@@ -112,21 +115,21 @@ bool MultiHWInterfaceRobotHWSim::initSim(
     {
       // TODO: Deprecate HW interface specification in actuators in ROS J
       joint_interfaces = transmissions[j].actuators_[0].hardware_interfaces_;
-      ROS_WARN_STREAM_NAMED("multi_hwi_robot_hw_sim", "The <hardware_interface> element of tranmission " <<
+      ROS_WARN_STREAM_NAMED("hwi_switch_robot_hw_sim", "The <hardware_interface> element of tranmission " <<
         transmissions[j].name_ << " should be nested inside the <joint> element, not <actuator>. " <<
         "The transmission will be properly loaded, but please update " <<
         "your robot model to remain compatible with future versions of the plugin.");
     }
     if (joint_interfaces.empty())
     {
-      ROS_WARN_STREAM_NAMED("multi_hwi_robot_hw_sim", "Joint " << transmissions[j].joints_[0].name_ <<
+      ROS_WARN_STREAM_NAMED("hwi_switch_robot_hw_sim", "Joint " << transmissions[j].joints_[0].name_ <<
         " of transmission " << transmissions[j].name_ << " does not specify any hardware interface. " <<
         "Not adding it to the robot hardware simulation.");
       continue;
     }
     else if (joint_interfaces.size() > 1)
     {
-      ROS_DEBUG_STREAM_NAMED("multi_hwi_robot_hw_sim", "Joint " << transmissions[j].joints_[0].name_ <<
+      ROS_DEBUG_STREAM_NAMED("hwi_switch_robot_hw_sim", "Joint " << transmissions[j].joints_[0].name_ <<
         " of transmission " << transmissions[j].name_ << " specifies multiple hardware interfaces. " <<
         "This feature is now available.");
     }
@@ -135,18 +138,18 @@ bool MultiHWInterfaceRobotHWSim::initSim(
     {
       if(enabled_joints_.find(transmissions[j].joints_[0].name_)!=enabled_joints_.end())
       {
-        ROS_DEBUG_STREAM_NAMED("multi_hwi_robot_hw_sim", "Found enabled joint '"<<transmissions[j].joints_[0].name_<<"'; j "<<j<<"; index: "<<index);
+        ROS_DEBUG_STREAM_NAMED("hwi_switch_robot_hw_sim", "Found enabled joint '"<<transmissions[j].joints_[0].name_<<"'; j "<<j<<"; index: "<<index);
       }
       else
       {
-        ROS_DEBUG_STREAM_NAMED("multi_hwi_robot_hw_sim", "Joint '"<<transmissions[j].joints_[0].name_<<"' is not enabled; j "<<j<<"; index: "<<index);
+        ROS_DEBUG_STREAM_NAMED("hwi_switch_robot_hw_sim", "Joint '"<<transmissions[j].joints_[0].name_<<"' is not enabled; j "<<j<<"; index: "<<index);
         continue;
       }
     }
     else
     {
       index = j;
-      ROS_DEBUG_STREAM_NAMED("multi_hwi_robot_hw_sim", "JointFiltering is disabled. Use joint '"<<transmissions[j].joints_[0].name_<<"'; j "<<j<<"; index: "<<index);
+      ROS_DEBUG_STREAM_NAMED("hwi_switch_robot_hw_sim", "JointFiltering is disabled. Use joint '"<<transmissions[j].joints_[0].name_<<"'; j "<<j<<"; index: "<<index);
     }
     
     // Add data from transmission
@@ -170,7 +173,7 @@ bool MultiHWInterfaceRobotHWSim::initSim(
     for(unsigned int i=0; i<joint_interfaces.size(); i++)
     {
       // Debug
-      ROS_DEBUG_STREAM_NAMED("multi_hwi_robot_hw_sim","Loading joint '" << joint_names_[index]
+      ROS_DEBUG_STREAM_NAMED("hwi_switch_robot_hw_sim","Loading joint '" << joint_names_[index]
         << "' of type '" << joint_interfaces[i] << "'");
       
       // Add hardware interface and joint to map of map_hwinterface_to_joints_
@@ -178,14 +181,14 @@ bool MultiHWInterfaceRobotHWSim::initSim(
       std::string hw_interface_type = "hardware_interface::"+joint_interfaces[i];
       if(map_hwinterface_to_joints_.find(hw_interface_type)!=map_hwinterface_to_joints_.end())
       {
-        ROS_DEBUG_STREAM_NAMED("multi_hwi_robot_hw_sim", "HW-Interface " << hw_interface_type << " already registered. Adding joint " << joint_names_[index] << " to list.");
+        ROS_DEBUG_STREAM_NAMED("hwi_switch_robot_hw_sim", "HW-Interface " << hw_interface_type << " already registered. Adding joint " << joint_names_[index] << " to list.");
         std::map< std::string, std::set<std::string> >::iterator it;
         it=map_hwinterface_to_joints_.find(hw_interface_type);
         it->second.insert(joint_names_[index]);
       }
       else
       {
-        ROS_DEBUG_STREAM_NAMED("multi_hwi_robot_hw_sim", "New HW-Interface registered " << hw_interface_type << ". Adding joint " << joint_names_[index] << " to list.");
+        ROS_DEBUG_STREAM_NAMED("hwi_switch_robot_hw_sim", "New HW-Interface registered " << hw_interface_type << ". Adding joint " << joint_names_[index] << " to list.");
         std::set<std::string> supporting_joints;
         supporting_joints.insert(joint_names_[index]);
         map_hwinterface_to_joints_.insert( std::pair< std::string, std::set<std::string> >(hw_interface_type, supporting_joints) );
@@ -241,7 +244,7 @@ bool MultiHWInterfaceRobotHWSim::initSim(
       }
       else
       {
-        ROS_FATAL_STREAM_NAMED("multi_hwi_robot_hw_sim","No matching hardware interface found for '"
+        ROS_FATAL_STREAM_NAMED("hwi_switch_robot_hw_sim","No matching hardware interface found for '"
           << joint_interfaces[i] );
         return false;
       }
@@ -250,7 +253,7 @@ bool MultiHWInterfaceRobotHWSim::initSim(
     gazebo::physics::JointPtr joint = parent_model->GetJoint(joint_names_[index]);
     if (!joint)
     {
-      ROS_ERROR_STREAM_NAMED("multi_hwi_robot_hw_sim", "This robot has a joint named \"" << joint_names_[index]
+      ROS_ERROR_STREAM_NAMED("hwi_switch_robot_hw_sim", "This robot has a joint named \"" << joint_names_[index]
         << "\" which is not in the gazebo model.");
       return false;
     }
@@ -279,7 +282,7 @@ bool MultiHWInterfaceRobotHWSim::initSim(
 }
 
 
-bool MultiHWInterfaceRobotHWSim::enableJointFiltering(ros::NodeHandle nh, std::string filter_joints_param)
+bool HWISwitchRobotHWSim::enableJointFiltering(ros::NodeHandle nh, std::string filter_joints_param)
 {
   enabled_joints_.clear();
   enable_joint_filtering_ = false;
@@ -287,7 +290,7 @@ bool MultiHWInterfaceRobotHWSim::enableJointFiltering(ros::NodeHandle nh, std::s
   std::vector<std::string> joints;
   if(!nh.getParam(filter_joints_param, joints))
   {
-    ROS_ERROR_STREAM_NAMED("multi_hwi_robot_hw_sim", "Parameter '"<<filter_joints_param<<"' not set");
+    ROS_ERROR_STREAM_NAMED("hwi_switch_robot_hw_sim", "Parameter '"<<filter_joints_param<<"' not set");
     return false;
   }
   
@@ -300,58 +303,69 @@ bool MultiHWInterfaceRobotHWSim::enableJointFiltering(ros::NodeHandle nh, std::s
   return true;
 }
 
-bool MultiHWInterfaceRobotHWSim::canSwitchHWInterface(const std::string &joint_name, const std::string &hwinterface_name)
-{
-  ROS_DEBUG_STREAM_NAMED("multi_hwi_robot_hw_sim", "Joint " << joint_name << " requests HW-Interface of type " << hwinterface_name);
-  std::map< std::string, std::set<std::string> >::iterator it = map_hwinterface_to_joints_.find(hwinterface_name);
-  if(it->second.find(joint_name)!=it->second.end()) { return true; }
-  
-  ROS_ERROR_STREAM_NAMED("multi_hwi_robot_hw_sim", "Joint " << joint_name << " does not provide a HW-Interface of type " << hwinterface_name);
-  return false;
-}
 
-bool MultiHWInterfaceRobotHWSim::doSwitchHWInterface(const std::string &joint_name, const std::string &hwinterface_name)
+
+bool HWISwitchRobotHWSim::canSwitch(const std::list<hardware_interface::ControllerInfo> &start_list, const std::list<hardware_interface::ControllerInfo> &stop_list) const
 {
-  ROS_DEBUG_STREAM_NAMED("multi_hwi_robot_hw_sim", "Joint " << joint_name << " requests HW-Interface of type " << hwinterface_name);
-  readSim(ros::Time(), ros::Duration());
-  for(unsigned int i=0; i<joint_names_.size(); i++)
+  //for all controllers to be started check whether all resources provide the required hardware_interface
+  //conflicts, i.e. different hardware_interfaces for the same resource is checked in checkForConflict()
+  //stopped controllers stay in there current mode as there is no no_operation_mode in gazebo
+  for (std::list<hardware_interface::ControllerInfo>::const_iterator list_it = start_list.begin(); list_it != start_list.end(); ++list_it)
   {
-    if(joint_names_[i] == joint_name)
+    for(std::set<std::string>::iterator set_it = list_it->resources.begin(); set_it != list_it->resources.end(); ++set_it)
     {
-      if(map_hwinterface_to_controlmethod_.find(hwinterface_name)!=map_hwinterface_to_controlmethod_.end())
+      if(map_hwinterface_to_joints_.at(list_it->hardware_interface).find(*set_it) == map_hwinterface_to_joints_.at(list_it->hardware_interface).end())
       {
-        ControlMethod current_control_method = map_hwinterface_to_controlmethod_.find(hwinterface_name)->second;
-        
-        ///semantic Zero
-        joint_position_command_[i] = joint_position_[i];
-        joint_velocity_command_[i] = 0.0;
-        joint_effort_command_[i] = 0.0;
-        
-        ///call setCommand once so that the JointLimitsInterface receive the correct value on their getCommand()!
-        try{  pj_interface_.getHandle(joint_name).setCommand(joint_position_command_[i]);  }
-        catch(const hardware_interface::HardwareInterfaceException&){}
-        try{  vj_interface_.getHandle(joint_name).setCommand(joint_velocity_command_[i]);  }
-        catch(const hardware_interface::HardwareInterfaceException&){}
-        try{  ej_interface_.getHandle(joint_name).setCommand(joint_effort_command_[i]);  }
-        catch(const hardware_interface::HardwareInterfaceException&){}
-        
-        ///reset joint_limit_interfaces
-        pj_sat_interface_.reset();
-        pj_limits_interface_.reset();
-        
-        joint_control_methods_[i] = current_control_method;
-        
-        ROS_DEBUG_STREAM_NAMED("multi_hwi_robot_hw_sim", "Joint " << joint_name << " now uses HW-Interface type: " << hwinterface_name);
-        ROS_DEBUG_STREAM_NAMED("multi_hwi_robot_hw_sim", "Joint " << joint_name << " PosCommand: " << joint_position_command_[i] << " VelCommand: " << joint_velocity_command_[i] << " EffCommand: " << joint_effort_command_[i]);
-        return true;
+        ROS_ERROR_STREAM_NAMED("hwi_switch_robot_hw_sim", "Cannot switch because resource \'" << *set_it << "\' does not provide HW-Interface \'" << list_it->hardware_interface << "\'");
+        return false;
       }
     }
   }
-  
-  ROS_ERROR_STREAM_NAMED("multi_hwi_robot_hw_sim", "An error occured while trying to switch HW-Interface for Joint " << joint_name << " (HW-Interface type: " << hwinterface_name << ")");
-  return false;
+  return true;
+}
+
+
+void HWISwitchRobotHWSim::doSwitch(const std::list<hardware_interface::ControllerInfo> &start_list, const std::list<hardware_interface::ControllerInfo> &stop_list)
+{
+  //for all controllers to be started
+  for (std::list<hardware_interface::ControllerInfo>::const_iterator list_it = start_list.begin(); list_it != start_list.end(); ++list_it)
+  {
+    //for all joints corresponding to this RobotHW
+    for(unsigned int i=0; i<joint_names_.size(); i++)
+    {
+      //if joint is in resource list of controller to be started
+      if(list_it->resources.find(joint_names_[i]) != list_it->resources.end())
+      {
+        if(map_hwinterface_to_controlmethod_.find(list_it->hardware_interface) != map_hwinterface_to_controlmethod_.end())
+        {
+          ControlMethod current_control_method = map_hwinterface_to_controlmethod_.find(list_it->hardware_interface)->second;
+          
+          ///semantic Zero
+          joint_position_command_[i] = joint_position_[i];
+          joint_velocity_command_[i] = 0.0;
+          joint_effort_command_[i] = 0.0;
+          
+          ///call setCommand once so that the JointLimitsInterface receive the correct value on their getCommand()!
+          try{  pj_interface_.getHandle(joint_names_[i]).setCommand(joint_position_command_[i]);  }
+          catch(const hardware_interface::HardwareInterfaceException&){}
+          try{  vj_interface_.getHandle(joint_names_[i]).setCommand(joint_velocity_command_[i]);  }
+          catch(const hardware_interface::HardwareInterfaceException&){}
+          try{  ej_interface_.getHandle(joint_names_[i]).setCommand(joint_effort_command_[i]);  }
+          catch(const hardware_interface::HardwareInterfaceException&){}
+          
+          ///reset joint_limit_interfaces
+          pj_sat_interface_.reset();
+          pj_limits_interface_.reset();
+          
+          joint_control_methods_[i] = current_control_method;
+          
+          ROS_DEBUG_STREAM_NAMED("hwi_switch_robot_hw_sim", "Resource \'" << joint_names_[i] << "\' switched to HW-Interface \'" << list_it->hardware_interface << "\'");
+        }
+      }
+    }
+  }
 }
 
 }
 
-PLUGINLIB_EXPORT_CLASS(cob_gazebo_ros_control::MultiHWInterfaceRobotHWSim, gazebo_ros_control::RobotHWSim)
+PLUGINLIB_EXPORT_CLASS(cob_gazebo_ros_control::HWISwitchRobotHWSim, gazebo_ros_control::RobotHWSim)

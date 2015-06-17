@@ -2,6 +2,9 @@
 Changelog for package cob_gazebo_plugins
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.6.1 (2014-12-12)
 ------------------
 * new gazebo_ros_control_plugin supporting multiple hardwareinterfaces and switch on controller_switching

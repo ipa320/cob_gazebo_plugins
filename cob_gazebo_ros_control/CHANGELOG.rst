@@ -2,8 +2,8 @@
 Changelog for package cob_gazebo_ros_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.6.2 (2015-06-17)
+------------------
 * using strict_hwi_switch api
 * more suitable name for plugin
 * beautify CMakeLists

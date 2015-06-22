@@ -2,6 +2,16 @@
 Changelog for package cob_gazebo_ros_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.6.2 (2015-06-17)
+------------------
+* using strict_hwi_switch api
+* more suitable name for plugin
+* beautify CMakeLists
+* use hwi_switch api
+* proper reset of joint limit interface
+* cleanup output
+* Contributors: ipa-fxm
+
 0.6.1 (2014-12-12)
 ------------------
 * Update README.md

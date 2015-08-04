@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(cob_gazebo_ros_control)
 
-find_package(catkin REQUIRED COMPONENTS controller_manager gazebo_ros_control gazebo_ros hardware_interface pluginlib roscpp transmission_interface urdf)
+find_package(catkin REQUIRED COMPONENTS controller_manager gazebo_ros_control gazebo_ros hardware_interface joint_limits_interface pluginlib roscpp transmission_interface urdf)
 
 find_package(gazebo REQUIRED)
 
 catkin_package(
-  CATKIN_DEPENDS controller_manager gazebo_ros_control gazebo_ros  hardware_interface pluginlib roscpp transmission_interface urdf
+  CATKIN_DEPENDS controller_manager gazebo_ros_control gazebo_ros hardware_interface joint_limits_interface pluginlib roscpp transmission_interface urdf
   INCLUDE_DIRS include
   LIBRARIES hwi_switch_gazebo_ros_control hwi_switch_robot_hw_sim
   DEPENDS gazebo

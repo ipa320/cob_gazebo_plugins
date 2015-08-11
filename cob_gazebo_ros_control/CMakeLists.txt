@@ -7,9 +7,9 @@ find_package(gazebo REQUIRED)
 
 catkin_package(
   CATKIN_DEPENDS controller_manager gazebo_ros_control gazebo_ros hardware_interface joint_limits_interface pluginlib roscpp transmission_interface urdf
+  DEPENDS gazebo
   INCLUDE_DIRS include
   LIBRARIES hwi_switch_gazebo_ros_control hwi_switch_robot_hw_sim
-  DEPENDS gazebo
 )
 
 ### BUILD ###

@@ -69,11 +69,11 @@ bool HWISwitchRobotHWSim::initSim(
     n_dof_ = transmissions.size();
     ROS_INFO_STREAM("JointFiltering is disabled! DoF: "<<n_dof_);
   }
-  
+
   position_joints_.clear();
   position_joints_.insert("test_joint");
-  
-  
+
+
   joint_names_.resize(n_dof_);
   joint_types_.resize(n_dof_);
   joint_lower_limits_.resize(n_dof_);
@@ -88,7 +88,7 @@ bool HWISwitchRobotHWSim::initSim(
   joint_effort_command_.resize(n_dof_);
   joint_position_command_.resize(n_dof_);
   joint_velocity_command_.resize(n_dof_);
-  
+
   // Initialize values
   unsigned int index = 0;
   for(unsigned int j=0; j < transmissions.size(); j++)
@@ -133,7 +133,7 @@ bool HWISwitchRobotHWSim::initSim(
         " of transmission " << transmissions[j].name_ << " specifies multiple hardware interfaces. " <<
         "This feature is now available.");
     }
-    
+
     if(enable_joint_filtering_)
     {
       if(enabled_joints_.find(transmissions[j].joints_[0].name_)!=enabled_joints_.end())
@@ -151,7 +151,7 @@ bool HWISwitchRobotHWSim::initSim(
       index = j;
       ROS_DEBUG_STREAM_NAMED("hwi_switch_robot_hw_sim", "JointFiltering is disabled. Use joint '"<<transmissions[j].joints_[0].name_<<"'; j "<<j<<"; index: "<<index);
     }
-    
+
     // Add data from transmission
     joint_names_[index] = transmissions[j].joints_[0].name_;
     joint_position_[index] = 1.0;
@@ -165,17 +165,17 @@ bool HWISwitchRobotHWSim::initSim(
     // Create joint state interface for all joints
     js_interface_.registerHandle(hardware_interface::JointStateHandle(
         joint_names_[index], &joint_position_[index], &joint_velocity_[index], &joint_effort_[index]));
-    
+
     // Decide what kind of command interface this actuator/joint has
     hardware_interface::JointHandle joint_handle;
-      
+
     // Parse all HW-Interfaces available for each joint and store information
     for(unsigned int i=0; i<joint_interfaces.size(); i++)
     {
       // Debug
       ROS_DEBUG_STREAM_NAMED("hwi_switch_robot_hw_sim","Loading joint '" << joint_names_[index]
         << "' of type '" << joint_interfaces[i] << "'");
-      
+
       // Add hardware interface and joint to map of map_hwinterface_to_joints_
       // ToDo: hardcoded namespace 'hardware_interface'?
       std::string hw_interface_type = "hardware_interface::"+joint_interfaces[i];
@@ -193,18 +193,18 @@ bool HWISwitchRobotHWSim::initSim(
         supporting_joints.insert(joint_names_[index]);
         map_hwinterface_to_joints_.insert( std::pair< std::string, std::set<std::string> >(hw_interface_type, supporting_joints) );
       }
-      
+
       if(joint_interfaces[i] == "EffortJointInterface")
       {
         // Create effort joint interface
         ControlMethod control_method = EFFORT;
         if(i==0){ joint_control_methods_[index] = control_method; } //use first entry for startup
         map_hwinterface_to_controlmethod_.insert( std::pair<std::string, ControlMethod>(hw_interface_type, control_method) );
-        
+
         joint_handle = hardware_interface::JointHandle(js_interface_.getHandle(joint_names_[index]),
                                                       &joint_effort_command_[index]);
         ej_interface_.registerHandle(joint_handle);
-        
+
         registerJointLimits(joint_names_[index], joint_handle, control_method,
                         joint_limit_nh, urdf_model,
                         &joint_types_[index], &joint_lower_limits_[index], &joint_upper_limits_[index],
@@ -216,11 +216,11 @@ bool HWISwitchRobotHWSim::initSim(
         ControlMethod control_method = POSITION;
         if(i==0){ joint_control_methods_[index] = control_method; } //use first entry for startup
         map_hwinterface_to_controlmethod_.insert( std::pair<std::string, ControlMethod>(hw_interface_type, control_method) );
-          
+
         joint_handle = hardware_interface::JointHandle(js_interface_.getHandle(joint_names_[index]),
                                                       &joint_position_command_[index]);
         pj_interface_.registerHandle(joint_handle);
-        
+
         registerJointLimits(joint_names_[index], joint_handle, control_method,
                         joint_limit_nh, urdf_model,
                         &joint_types_[index], &joint_lower_limits_[index], &joint_upper_limits_[index],
@@ -232,11 +232,11 @@ bool HWISwitchRobotHWSim::initSim(
         ControlMethod control_method = VELOCITY;
         if(i==0){ joint_control_methods_[index] = control_method; } //use first entry for startup
         map_hwinterface_to_controlmethod_.insert( std::pair<std::string, ControlMethod>(hw_interface_type, control_method) );
-         
+
         joint_handle = hardware_interface::JointHandle(js_interface_.getHandle(joint_names_[index]),
                                                       &joint_velocity_command_[index]);
         vj_interface_.registerHandle(joint_handle);
-        
+
         registerJointLimits(joint_names_[index], joint_handle, control_method,
                         joint_limit_nh, urdf_model,
                         &joint_types_[index], &joint_lower_limits_[index], &joint_upper_limits_[index],
@@ -249,7 +249,7 @@ bool HWISwitchRobotHWSim::initSim(
         return false;
       }
     }
-    
+
     gazebo::physics::JointPtr joint = parent_model->GetJoint(joint_names_[index]);
     if (!joint)
     {
@@ -258,8 +258,8 @@ bool HWISwitchRobotHWSim::initSim(
       return false;
     }
     sim_joints_.push_back(joint);
-      
-    
+
+
     // ToDo: Can a joint (gazebo::physics::JointPtr) be used for EFFORT if joint->SetMaxForce has been called before?
     if (joint_control_methods_[index] == VELOCITY || joint_control_methods_[index] == POSITION)
     {
@@ -268,7 +268,7 @@ bool HWISwitchRobotHWSim::initSim(
       // going to be called.
       joint->SetMaxForce(0, joint_effort_limits_[index]);
     }
-    
+
     index++;
   }
 
@@ -286,19 +286,19 @@ bool HWISwitchRobotHWSim::enableJointFiltering(ros::NodeHandle nh, std::string f
 {
   enabled_joints_.clear();
   enable_joint_filtering_ = false;
-  
+
   std::vector<std::string> joints;
   if(!nh.getParam(filter_joints_param, joints))
   {
     ROS_ERROR_STREAM_NAMED("hwi_switch_robot_hw_sim", "Parameter '"<<filter_joints_param<<"' not set");
     return false;
   }
-  
+
   for(std::vector<std::string>::iterator it = joints.begin() ; it != joints.end(); ++it)
   {
     enabled_joints_.insert(*it);
   }
-  
+
   enable_joint_filtering_ = true;
   return true;
 }
@@ -339,12 +339,12 @@ void HWISwitchRobotHWSim::doSwitch(const std::list<hardware_interface::Controlle
         if(map_hwinterface_to_controlmethod_.find(list_it->hardware_interface) != map_hwinterface_to_controlmethod_.end())
         {
           ControlMethod current_control_method = map_hwinterface_to_controlmethod_.find(list_it->hardware_interface)->second;
-          
+
           ///semantic Zero
           joint_position_command_[i] = joint_position_[i];
           joint_velocity_command_[i] = 0.0;
           joint_effort_command_[i] = 0.0;
-          
+
           ///call setCommand once so that the JointLimitsInterface receive the correct value on their getCommand()!
           try{  pj_interface_.getHandle(joint_names_[i]).setCommand(joint_position_command_[i]);  }
           catch(const hardware_interface::HardwareInterfaceException&){}
@@ -352,13 +352,13 @@ void HWISwitchRobotHWSim::doSwitch(const std::list<hardware_interface::Controlle
           catch(const hardware_interface::HardwareInterfaceException&){}
           try{  ej_interface_.getHandle(joint_names_[i]).setCommand(joint_effort_command_[i]);  }
           catch(const hardware_interface::HardwareInterfaceException&){}
-          
+
           ///reset joint_limit_interfaces
           pj_sat_interface_.reset();
           pj_limits_interface_.reset();
-          
+
           joint_control_methods_[i] = current_control_method;
-          
+
           ROS_DEBUG_STREAM_NAMED("hwi_switch_robot_hw_sim", "Resource \'" << joint_names_[i] << "\' switched to HW-Interface \'" << list_it->hardware_interface << "\'");
         }
       }

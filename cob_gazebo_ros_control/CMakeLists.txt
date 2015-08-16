@@ -13,7 +13,7 @@ catkin_package(
 )
 
 ### BUILD ###
-include_directories(include ${Boost_INCLUDE_DIR} ${catkin_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS})
+include_directories(include ${catkin_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS})
 
 add_library(hwi_switch_robot_hw_sim src/hwi_switch_robot_hw_sim.cpp)
 target_link_libraries(hwi_switch_robot_hw_sim ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})

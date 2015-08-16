@@ -40,9 +40,6 @@
            using pluginlib. It extends gazebo_ros_control_plugin with harware_interface switching capability.
 */
 
-// Boost
-#include <boost/bind.hpp>
-
 #include <cob_gazebo_ros_control/hwi_switch_gazebo_ros_control_plugin.h>
 #include <urdf/model.h>
 

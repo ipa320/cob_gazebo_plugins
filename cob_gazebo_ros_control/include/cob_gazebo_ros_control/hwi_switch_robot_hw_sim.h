@@ -60,9 +60,9 @@ public:
     gazebo::physics::ModelPtr parent_model,
     const urdf::Model *const urdf_model,
     std::vector<transmission_interface::TransmissionInfo> transmissions);
-  
+
   virtual bool enableJointFiltering(ros::NodeHandle nh, std::string filter_joints_param);
-  
+
   virtual bool canSwitch(const std::list<hardware_interface::ControllerInfo> &start_list, const std::list<hardware_interface::ControllerInfo> &stop_list) const;
   virtual void doSwitch(const std::list<hardware_interface::ControllerInfo> &start_list, const std::list<hardware_interface::ControllerInfo> &stop_list);
 
@@ -70,7 +70,7 @@ protected:
 
   bool enable_joint_filtering_;
   std::set< std::string > enabled_joints_;
-  
+
   std::set< std::string > position_joints_;
   std::map< std::string, std::set<std::string> > map_hwinterface_to_joints_;
   std::map< std::string, ControlMethod > map_hwinterface_to_controlmethod_;

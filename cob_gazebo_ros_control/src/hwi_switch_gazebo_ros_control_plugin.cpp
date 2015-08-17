@@ -40,9 +40,6 @@
            using pluginlib. It extends gazebo_ros_control_plugin with harware_interface switching capability.
 */
 
-// Boost
-#include <boost/bind.hpp>
-
 #include <cob_gazebo_ros_control/hwi_switch_gazebo_ros_control_plugin.h>
 #include <urdf/model.h>
 
@@ -107,7 +104,7 @@ void HWISwitchGazeboRosControlPlugin::Load(gazebo::physics::ModelPtr parent, sdf
     robot_hw_sim_type_str_ = "cob_gazebo_ros_control/HWISwitchRobotHWSim";
     ROS_DEBUG_STREAM_NAMED("cob_gazebo_ros_control","Using default plugin for RobotHWSim (none specified in URDF/SDF)\""<<robot_hw_sim_type_str_<<"\"");
   }
-  
+
   // Get the Gazebo simulation period
   ros::Duration gazebo_period(parent_model_->GetWorld()->GetPhysicsEngine()->GetMaxStepSize());
 
@@ -134,7 +131,7 @@ void HWISwitchGazeboRosControlPlugin::Load(gazebo::physics::ModelPtr parent, sdf
     ROS_DEBUG_STREAM_NAMED("cob_gazebo_ros_control","Control period not found in URDF/SDF, defaulting to Gazebo period of "
       << control_period_);
   }
-  
+
   // Determine whether to filter joints
   if(sdf_->HasElement("filterJointsParam"))
   {
@@ -171,15 +168,15 @@ void HWISwitchGazeboRosControlPlugin::Load(gazebo::physics::ModelPtr parent, sdf
       //(new pluginlib::ClassLoader<gazebo_ros_control::RobotHWSim>
         //("gazebo_ros_control",
           //"gazebo_ros_control::RobotHWSim"));
- 
+
     //robot_hw_sim_ = robot_hw_sim_loader_->createInstance(robot_hw_sim_type_str_);
-    
+
     hwi_switch_robot_hw_sim_.reset(new cob_gazebo_ros_control::HWISwitchRobotHWSim());
-    
-    
+
+
     urdf::Model urdf_model;
     const urdf::Model *const urdf_model_ptr = urdf_model.initString(urdf_string) ? &urdf_model : NULL;
-    
+
     if(enable_joint_filtering_)
     {
       if(!hwi_switch_robot_hw_sim_->enableJointFiltering(model_nh_, filterJointsParam_))
@@ -188,7 +185,7 @@ void HWISwitchGazeboRosControlPlugin::Load(gazebo::physics::ModelPtr parent, sdf
         return;
       }
     }
-    
+
     if(!hwi_switch_robot_hw_sim_->initSim(robot_namespace_, model_nh_, parent_model_, urdf_model_ptr, transmissions_))
     {
       ROS_FATAL_NAMED("cob_gazebo_ros_control","Could not initialize robot simulation interface");

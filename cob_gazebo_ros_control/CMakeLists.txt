@@ -7,13 +7,13 @@ find_package(gazebo REQUIRED)
 
 catkin_package(
   CATKIN_DEPENDS controller_manager gazebo_ros_control gazebo_ros hardware_interface joint_limits_interface pluginlib roscpp transmission_interface urdf
+  DEPENDS gazebo
   INCLUDE_DIRS include
   LIBRARIES hwi_switch_gazebo_ros_control hwi_switch_robot_hw_sim
-  DEPENDS gazebo
 )
 
 ### BUILD ###
-include_directories(include ${Boost_INCLUDE_DIR} ${catkin_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS})
+include_directories(include ${catkin_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS})
 
 add_library(hwi_switch_robot_hw_sim src/hwi_switch_robot_hw_sim.cpp)
 target_link_libraries(hwi_switch_robot_hw_sim ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})

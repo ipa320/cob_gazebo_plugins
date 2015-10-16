@@ -36,22 +36,21 @@
  *********************************************************************/
 
 /* Author: Dave Coleman, Johnathan Bohren, Felix Messmer
-   Desc:   Hardware Interface for any simulated robot in Gazebo supporting multiple hardware_interfaces
+   Desc:   Hardware Interface for any simulated robot in Gazebo supporting hardware_interface switching
 */
 
-#ifndef _COB_GAZEBO_ROS_CONTROL___MULTI_HW_INTERFACE_ROBOT_HW_SIM_H_
-#define _COB_GAZEBO_ROS_CONTROL___MULTI_HW_INTERFACE_ROBOT_HW_SIM_H_
+#ifndef _COB_GAZEBO_ROS_CONTROL___HWI_SWITCH_ROBOT_HW_SIM_H_
+#define _COB_GAZEBO_ROS_CONTROL___HWI_SWITCH_ROBOT_HW_SIM_H_
 
 
 // cob_gazebo_ros_control
 #include <gazebo_ros_control/default_robot_hw_sim.h>
 
 
-
 namespace cob_gazebo_ros_control
 {
 
-class MultiHWInterfaceRobotHWSim : public gazebo_ros_control::DefaultRobotHWSim
+class HWISwitchRobotHWSim : public gazebo_ros_control::DefaultRobotHWSim
 {
 public:
 
@@ -61,19 +60,25 @@ public:
     gazebo::physics::ModelPtr parent_model,
     const urdf::Model *const urdf_model,
     std::vector<transmission_interface::TransmissionInfo> transmissions);
-    
-  virtual bool canSwitchHWInterface(const std::string &joint_name, const std::string &hwinterface_name);
-  virtual bool doSwitchHWInterface(const std::string &joint_name, const std::string &hwinterface_name);
+
+  virtual bool enableJointFiltering(ros::NodeHandle nh, std::string filter_joints_param);
+
+  virtual bool canSwitch(const std::list<hardware_interface::ControllerInfo> &start_list, const std::list<hardware_interface::ControllerInfo> &stop_list) const;
+  virtual void doSwitch(const std::list<hardware_interface::ControllerInfo> &start_list, const std::list<hardware_interface::ControllerInfo> &stop_list);
 
 protected:
 
+  bool enable_joint_filtering_;
+  std::set< std::string > enabled_joints_;
+
+  std::set< std::string > position_joints_;
   std::map< std::string, std::set<std::string> > map_hwinterface_to_joints_;
   std::map< std::string, ControlMethod > map_hwinterface_to_controlmethod_;
 
 };
 
-typedef boost::shared_ptr<MultiHWInterfaceRobotHWSim> MultiHWInterfaceRobotHWSimPtr;
+typedef boost::shared_ptr<HWISwitchRobotHWSim> HWISwitchRobotHWSimPtr;
 
 }
 
-#endif // #ifndef _COB_GAZEBO_ROS_CONTROL___MULTI_HW_INTERFACE_ROBOT_HW_SIM_H_
+#endif // #ifndef _COB_GAZEBO_ROS_CONTROL___HWI_SWITCH_ROBOT_HW_SIM_H_

@@ -14,6 +14,19 @@ Changelog for package cob_gazebo_ros_control
 * review dependencies
 * Contributors: ipa-fxm
 
+Forthcoming
+-----------
+* 0.6.4
+* update changelog
+* 0.6.3
+* update changelog
+* boost revision
+* remove trailing whitespaces
+* migration to package format 2
+* fix missing dependency
+* review dependencies
+* Contributors: ipa-fxm
+
 0.6.2 (2015-06-17)
 ------------------
 * using strict_hwi_switch api

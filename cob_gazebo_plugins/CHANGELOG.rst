@@ -11,6 +11,16 @@ Changelog for package cob_gazebo_plugins
 * review dependencies
 * Contributors: ipa-fxm
 
+Forthcoming
+-----------
+* 0.6.4
+* update changelog
+* 0.6.3
+* update changelog
+* migration to package format 2
+* review dependencies
+* Contributors: ipa-fxm
+
 0.6.2 (2015-06-17)
 ------------------
 

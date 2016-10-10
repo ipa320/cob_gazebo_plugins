@@ -14,8 +14,8 @@ Changelog for package cob_gazebo_ros_control
 * review dependencies
 * Contributors: ipa-fxm
 
-Forthcoming
------------
+0.6.5 (2016-10-10)
+------------------
 * 0.6.4
 * update changelog
 * 0.6.3

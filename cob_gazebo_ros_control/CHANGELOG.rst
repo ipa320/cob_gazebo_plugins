@@ -2,24 +2,14 @@
 Changelog for package cob_gazebo_ros_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.6.5 (2016-10-10)
+------------------
+
 0.6.4 (2016-04-01)
 ------------------
 
 0.6.3 (2015-08-25)
 ------------------
-* boost revision
-* remove trailing whitespaces
-* migration to package format 2
-* fix missing dependency
-* review dependencies
-* Contributors: ipa-fxm
-
-0.6.5 (2016-10-10)
-------------------
-* 0.6.4
-* update changelog
-* 0.6.3
-* update changelog
 * boost revision
 * remove trailing whitespaces
 * migration to package format 2

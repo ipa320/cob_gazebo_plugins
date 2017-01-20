@@ -143,6 +143,14 @@ void HWISwitchGazeboRosControlPlugin::Load(gazebo::physics::ModelPtr parent, sdf
     e_stop_sub_ = model_nh_.subscribe(e_stop_topic, 1, &HWISwitchGazeboRosControlPlugin::eStopCB, this);
   }
 
+  // Initialize the code to handle state_valid.
+  state_valid_ = true;
+  if (sdf_->HasElement("stateValidTopic"))
+  {
+    const std::string state_valid_topic = sdf_->GetElement("stateValidTopic")->Get<std::string>();
+    state_valid_sub_ = model_nh_.subscribe(state_valid_topic, 1, &HWISwitchGazeboRosControlPlugin::stateValidCB, this);
+  }
+
   // Determine whether to filter joints
   if(sdf_->HasElement("filterJointsParam"))
   {
@@ -228,6 +236,8 @@ void HWISwitchGazeboRosControlPlugin::Update()
   ros::Duration sim_period = sim_time_ros - last_update_sim_time_ros_;
 
   hwi_switch_robot_hw_sim_->eStopActive(e_stop_active_);
+  hwi_switch_robot_hw_sim_->stateValid(state_valid_);
+  e_stop_active_ = e_stop_active_ || not state_valid_;
 
   // Check if we should update the controllers
   if(sim_period >= control_period_) {
@@ -269,6 +279,12 @@ void HWISwitchGazeboRosControlPlugin::Update()
 void HWISwitchGazeboRosControlPlugin::eStopCB(const std_msgs::BoolConstPtr& e_stop_active)
 {
   e_stop_active_ = e_stop_active->data;
+}
+
+// State valid callback
+void HWISwitchGazeboRosControlPlugin::stateValidCB(const std_msgs::BoolConstPtr& state_valid)
+{
+  state_valid_ = state_valid->data;
 }
 
 // Register this plugin with the simulator

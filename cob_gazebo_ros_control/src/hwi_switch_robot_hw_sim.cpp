@@ -279,6 +279,7 @@ bool HWISwitchRobotHWSim::initSim(
   registerInterface(&vj_interface_);
 
   // Initialize the emergency stop code.
+  state_valid_ = true;
   e_stop_active_ = false;
   last_e_stop_active_ = false;
 
@@ -364,6 +365,11 @@ void HWISwitchRobotHWSim::doSwitch(const std::list<hardware_interface::Controlle
       }
     }
   }
+}
+
+void HWISwitchRobotHWSim::stateValid(const bool valid)
+{
+  state_valid_ = valid;
 }
 
 }

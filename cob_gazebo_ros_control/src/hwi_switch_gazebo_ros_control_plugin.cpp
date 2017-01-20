@@ -43,7 +43,6 @@
 #include <cob_gazebo_ros_control/hwi_switch_gazebo_ros_control_plugin.h>
 #include <urdf/model.h>
 
-
 namespace cob_gazebo_ros_control
 {
 
@@ -132,6 +131,18 @@ void HWISwitchGazeboRosControlPlugin::Load(gazebo::physics::ModelPtr parent, sdf
       << control_period_);
   }
 
+  // Get parameters/settings for controllers from ROS param server
+  model_nh_ = ros::NodeHandle(robot_namespace_);
+
+  // Initialize the emergency stop code.
+  e_stop_active_ = false;
+  last_e_stop_active_ = false;
+  if (sdf_->HasElement("eStopTopic"))
+  {
+    const std::string e_stop_topic = sdf_->GetElement("eStopTopic")->Get<std::string>();
+    e_stop_sub_ = model_nh_.subscribe(e_stop_topic, 1, &HWISwitchGazeboRosControlPlugin::eStopCB, this);
+  }
+
   // Determine whether to filter joints
   if(sdf_->HasElement("filterJointsParam"))
   {
@@ -146,9 +157,6 @@ void HWISwitchGazeboRosControlPlugin::Load(gazebo::physics::ModelPtr parent, sdf
     ROS_INFO_STREAM_NAMED("cob_gazebo_ros_control","Joint-filtering is disabled. The plugin will set up JointHandles for all joints!");
   }
 
-
-  // Get parameters/settings for controllers from ROS param server
-  model_nh_ = ros::NodeHandle(robot_namespace_);
   ROS_INFO_NAMED("cob_gazebo_ros_control", "Starting cob_gazebo_ros_control plugin in namespace: %s", robot_namespace_.c_str());
 
   // Read urdf from ros parameter server then
@@ -211,7 +219,6 @@ void HWISwitchGazeboRosControlPlugin::Load(gazebo::physics::ModelPtr parent, sdf
   ROS_INFO_NAMED("cob_gazebo_ros_control", "Loaded cob_gazebo_ros_control.");
 }
 
-
 // Called by the world update start event
 void HWISwitchGazeboRosControlPlugin::Update()
 {
@@ -219,6 +226,8 @@ void HWISwitchGazeboRosControlPlugin::Update()
   gazebo::common::Time gz_time_now = parent_model_->GetWorld()->GetSimTime();
   ros::Time sim_time_ros(gz_time_now.sec, gz_time_now.nsec);
   ros::Duration sim_period = sim_time_ros - last_update_sim_time_ros_;
+
+  hwi_switch_robot_hw_sim_->eStopActive(e_stop_active_);
 
   // Check if we should update the controllers
   if(sim_period >= control_period_) {
@@ -229,13 +238,37 @@ void HWISwitchGazeboRosControlPlugin::Update()
     hwi_switch_robot_hw_sim_->readSim(sim_time_ros, sim_period);
 
     // Compute the controller commands
-    controller_manager_->update(sim_time_ros, sim_period);
+    bool reset_ctrlrs;
+    if (e_stop_active_)
+    {
+      reset_ctrlrs = false;
+      last_e_stop_active_ = true;
+    }
+    else
+    {
+      if (last_e_stop_active_)
+      {
+        reset_ctrlrs = true;
+        last_e_stop_active_ = false;
+      }
+      else
+      {
+        reset_ctrlrs = false;
+      }
+    }
+    controller_manager_->update(sim_time_ros, sim_period, reset_ctrlrs);
   }
 
   // Update the gazebo model with the result of the controller
   // computation
   hwi_switch_robot_hw_sim_->writeSim(sim_time_ros, sim_time_ros - last_write_sim_time_ros_);
   last_write_sim_time_ros_ = sim_time_ros;
+}
+
+// Emergency stop callback
+void HWISwitchGazeboRosControlPlugin::eStopCB(const std_msgs::BoolConstPtr& e_stop_active)
+{
+  e_stop_active_ = e_stop_active->data;
 }
 
 // Register this plugin with the simulator

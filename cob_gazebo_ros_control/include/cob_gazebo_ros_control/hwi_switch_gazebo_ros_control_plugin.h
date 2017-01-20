@@ -59,6 +59,8 @@ public:
   void Update();
 
 protected:
+  void eStopCB(const std_msgs::BoolConstPtr& e_stop_active);
+
   bool enable_joint_filtering_;
   std::string filterJointsParam_;
 

@@ -59,10 +59,16 @@ public:
   void Update();
 
 protected:
+  void eStopCB(const std_msgs::BoolConstPtr& e_stop_active);
+  void stateValidCB(const std_msgs::BoolConstPtr& state_valid);
+
   bool enable_joint_filtering_;
   std::string filterJointsParam_;
 
   boost::shared_ptr<cob_gazebo_ros_control::HWISwitchRobotHWSim> hwi_switch_robot_hw_sim_;
+
+  bool state_valid_;
+  ros::Subscriber state_valid_sub_;
 };
 
 

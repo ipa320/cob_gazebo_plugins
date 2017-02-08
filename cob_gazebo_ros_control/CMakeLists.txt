@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(cob_gazebo_ros_control)
 
+add_definitions(-std=c++11)
+
 find_package(catkin REQUIRED COMPONENTS controller_manager gazebo_ros_control gazebo_ros hardware_interface joint_limits_interface pluginlib roscpp transmission_interface urdf)
 
 find_package(gazebo REQUIRED)

@@ -5,7 +5,7 @@ cob_gazebo_plugins
 
 |         | Indigo | Jade | Kinetic |
 |:-------:|:------:|:----:|:-------:|
-| Branch  | [`indigo_dev`](https://github.com/ipa320/cob_gazebo_plugins/tree/indigo_dev) | [`kinetic_dev`](https://github.com/ipa320/cob_gazebo_plugins/tree/kinetic_dev) | [`kinetic_dev`](https://github.com/ipa320/cob_gazebo_plugins/tree/kinetic_dev) |
+| Branch  | [`indigo_dev`](https://github.com/ipa320/cob_gazebo_plugins/tree/indigo_dev) | [`indigo_dev`](https://github.com/ipa320/cob_gazebo_plugins/tree/indigo_dev) | [`kinetic_dev`](https://github.com/ipa320/cob_gazebo_plugins/tree/kinetic_dev) |
 | Status  |  supported | not supported |  supported |
 | Version | [version](http://repositories.ros.org/status_page/ros_indigo_default.html?q=cob_gazebo_plugins) | [version](http://repositories.ros.org/status_page/ros_jade_default.html?q=cob_gazebo_plugins) | [version](http://repositories.ros.org/status_page/ros_kinetic_default.html?q=cob_gazebo_plugins) |
 

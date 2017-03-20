@@ -282,9 +282,13 @@ bool HWISwitchRobotHWSim::initSim(
   registerInterface(&pj_interface_);
   registerInterface(&vj_interface_);
 
+  // Initialize the emergency stop code.
+  state_valid_ = true;
+  e_stop_active_ = false;
+  last_e_stop_active_ = false;
+
   return true;
 }
-
 
 bool HWISwitchRobotHWSim::enableJointFiltering(ros::NodeHandle nh, std::string filter_joints_param)
 {
@@ -307,8 +311,6 @@ bool HWISwitchRobotHWSim::enableJointFiltering(ros::NodeHandle nh, std::string f
   return true;
 }
 
-
-
 bool HWISwitchRobotHWSim::canSwitch(const std::list<hardware_interface::ControllerInfo> &start_list, const std::list<hardware_interface::ControllerInfo> &stop_list) const
 {
   //for all controllers to be started check whether all resources provide the required hardware_interface
@@ -330,7 +332,6 @@ bool HWISwitchRobotHWSim::canSwitch(const std::list<hardware_interface::Controll
   }
   return true;
 }
-
 
 void HWISwitchRobotHWSim::doSwitch(const std::list<hardware_interface::ControllerInfo> &start_list, const std::list<hardware_interface::ControllerInfo> &stop_list)
 {
@@ -374,6 +375,11 @@ void HWISwitchRobotHWSim::doSwitch(const std::list<hardware_interface::Controlle
       }
     }
   }
+}
+
+void HWISwitchRobotHWSim::stateValid(const bool valid)
+{
+  state_valid_ = valid;
 }
 
 }

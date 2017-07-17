@@ -2,6 +2,11 @@
 Changelog for package cob_gazebo_ros_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fix dependencies
+* Contributors: Richard Bormann
+
 0.7.0 (2017-07-17)
 ------------------
 * Merge branch 'indigo_dev' of github.com:ipa320/cob_gazebo_plugins into multi_distro_travis_kinetic

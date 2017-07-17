@@ -2,8 +2,8 @@
 Changelog for package cob_gazebo_ros_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.7.1 (2017-07-17)
+------------------
 * fix dependencies
 * Contributors: Richard Bormann
 

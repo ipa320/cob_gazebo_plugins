@@ -2,6 +2,13 @@
 Changelog for package cob_gazebo_ros_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.6.6 (2017-07-17)
+------------------
+* add state_valid behavior
+* add estop behavior
+* manually fix changelog
+* Contributors: ipa-fxm
+
 0.6.5 (2016-10-10)
 ------------------
 

@@ -2,8 +2,8 @@
 Changelog for package cob_gazebo_ros_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.7.0 (2017-07-17)
+------------------
 * Merge branch 'indigo_dev' of github.com:ipa320/cob_gazebo_plugins into multi_distro_travis_kinetic
   Conflicts:
   .travis.yml

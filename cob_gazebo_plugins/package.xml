@@ -3,7 +3,7 @@
   <version>0.6.5</version>
   <description>cob_gazebo_plugins meta-package</description>
 
-  <license>LGPL</license>
+  <license>Apache 2.0</license>
 
   <url type="website">http://ros.org/wiki/cob_gazebo_plugins</url>
   <!-- <url type="bugtracker"></url> -->

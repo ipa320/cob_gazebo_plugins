@@ -8,7 +8,7 @@
 
   <maintainer email="fxm@ipa.fhg.de">Felix Messmer</maintainer>
 
-  <license>BSD</license>
+  <license>Apache 2.0</license>
 
   <url type="website">http://ros.org/wiki/cob_gazebo_ros_control</url>
   <url type="bugtracker">https://github.com/ipa320/cob_gazebo_plugins/issues</url>

@@ -1,14 +1,15 @@
 <package format="2">
   <name>cob_gazebo_ros_control</name>
-  <version>0.7.1</version>
+  <version>0.7.2</version>
   <description>
     This package contains a specialization of the gazebo_ros_control plugin.
     The cob_gazebo_ros_control plugin allows Multi-HardwareInterface-Support.
   </description>
 
   <maintainer email="fxm@ipa.fhg.de">Felix Messmer</maintainer>
+  <author email="fxm@ipa.fhg.de">Felix Messmer</author>
 
-  <license>BSD</license>
+  <license>Apache 2.0</license>
 
   <url type="website">http://ros.org/wiki/cob_gazebo_ros_control</url>
   <url type="bugtracker">https://github.com/ipa320/cob_gazebo_plugins/issues</url>

@@ -2,6 +2,28 @@
 Changelog for package cob_gazebo_ros_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.7.1 (2017-07-17)
+------------------
+* fix dependencies
+* Contributors: Richard Bormann
+
+0.7.0 (2017-07-17)
+------------------
+* Merge branch 'indigo_dev' of github.com:ipa320/cob_gazebo_plugins into multi_distro_travis_kinetic
+  Conflicts:
+  .travis.yml
+  README.md
+* compile with c++11
+* Kinetic and Gazebo > 2, fixed hardware_interface::ControllerInfo API change
+* Contributors: Benjamin Maidel, Dinesh Thakur, ipa-fxm
+
+0.6.6 (2017-07-17)
+------------------
+* add state_valid behavior
+* add estop behavior
+* manually fix changelog
+* Contributors: ipa-fxm
+
 0.6.5 (2016-10-10)
 ------------------
 

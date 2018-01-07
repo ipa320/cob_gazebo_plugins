@@ -2,8 +2,8 @@
 Changelog for package cob_gazebo_plugins
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.6.7 (2018-01-07)
+------------------
 * Merge pull request `#33 <https://github.com/ipa320/cob_gazebo_plugins/issues/33>`_ from ipa320/indigo_release_candidate
   Indigo release candidate
 * Merge pull request `#31 <https://github.com/ipa320/cob_gazebo_plugins/issues/31>`_ from ipa-fxm/update_maintainer

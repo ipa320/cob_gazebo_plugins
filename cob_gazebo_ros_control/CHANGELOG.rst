@@ -2,6 +2,18 @@
 Changelog for package cob_gazebo_ros_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#33 <https://github.com/ipa320/cob_gazebo_plugins/issues/33>`_ from ipa320/indigo_release_candidate
+  Indigo release candidate
+* Merge pull request `#31 <https://github.com/ipa320/cob_gazebo_plugins/issues/31>`_ from ipa-fxm/update_maintainer
+  update maintainer
+* update maintainer
+* Merge pull request `#28 <https://github.com/ipa320/cob_gazebo_plugins/issues/28>`_ from ipa-fxm/APACHE_license
+  use license apache 2.0
+* use license apache 2.0
+* Contributors: Felix Messmer, ipa-fxm, ipa-uhr-mk
+
 0.6.6 (2017-07-17)
 ------------------
 * add state_valid behavior

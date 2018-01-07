@@ -2,8 +2,8 @@
 Changelog for package cob_gazebo_ros_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.7.2 (2018-01-07)
+------------------
 * Merge pull request `#34 <https://github.com/ipa320/cob_gazebo_plugins/issues/34>`_ from ipa320/kinetic_release_candidate
   Kinetic release candidate
 * Merge pull request `#32 <https://github.com/ipa320/cob_gazebo_plugins/issues/32>`_ from ipa-fxm/kinetic_dev

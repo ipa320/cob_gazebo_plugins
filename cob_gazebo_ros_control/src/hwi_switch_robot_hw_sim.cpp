@@ -169,7 +169,7 @@ bool HWISwitchRobotHWSim::initSim(
         map_hwinterface_to_joints_.insert( std::pair< std::string, std::set<std::string> >(hw_interface_type, supporting_joints) );
       }
 
-      if(joint_interfaces[i] == "EffortJointInterface")
+      if(joint_interfaces[i] == "hardware_interface/EffortJointInterface")
       {
         // Create effort joint interface
         ControlMethod control_method = EFFORT;
@@ -185,7 +185,7 @@ bool HWISwitchRobotHWSim::initSim(
                         &joint_types_[index], &joint_lower_limits_[index], &joint_upper_limits_[index],
                         &joint_effort_limits_[index]);
       }
-      else if(joint_interfaces[i] == "PositionJointInterface")
+      else if(joint_interfaces[i] == "hardware_interface/PositionJointInterface")
       {
         // Create position joint interface
         ControlMethod control_method = POSITION;
@@ -201,7 +201,7 @@ bool HWISwitchRobotHWSim::initSim(
                         &joint_types_[index], &joint_lower_limits_[index], &joint_upper_limits_[index],
                         &joint_effort_limits_[index]);
       }
-      else if(joint_interfaces[i] == "VelocityJointInterface")
+      else if(joint_interfaces[i] == "hardware_interface/VelocityJointInterface")
       {
         // Create velocity joint interface
         ControlMethod control_method = VELOCITY;

@@ -17,7 +17,7 @@
 
 // cob_gazebo_ros_control
 #include <cob_gazebo_ros_control/hwi_switch_robot_hw_sim.h>
-
+#include <boost/algorithm/string/replace.hpp>
 
 namespace cob_gazebo_ros_control
 {
@@ -153,7 +153,7 @@ bool HWISwitchRobotHWSim::initSim(
 
       // Add hardware interface and joint to map of map_hwinterface_to_joints_
       // ToDo: hardcoded namespace 'hardware_interface'?
-      std::string hw_interface_type = "hardware_interface::"+joint_interfaces[i];
+      std::string hw_interface_type = boost::algorithm::replace_all_copy(joint_interfaces[i], "/", "::");
       if(map_hwinterface_to_joints_.find(hw_interface_type)!=map_hwinterface_to_joints_.end())
       {
         ROS_DEBUG_STREAM_NAMED("hwi_switch_robot_hw_sim", "HW-Interface " << hw_interface_type << " already registered. Adding joint " << joint_names_[index] << " to list.");

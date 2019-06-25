@@ -63,6 +63,7 @@ bool HWISwitchRobotHWSim::initSim(
   joint_effort_command_.resize(n_dof_);
   joint_position_command_.resize(n_dof_);
   joint_velocity_command_.resize(n_dof_);
+  pid_controllers_.resize(n_dof_);
 
   // Initialize values
   unsigned int index = 0;
@@ -144,6 +145,10 @@ bool HWISwitchRobotHWSim::initSim(
     // Decide what kind of command interface this actuator/joint has
     hardware_interface::JointHandle joint_handle;
 
+    const ros::NodeHandle nh(robot_namespace + "/gazebo_ros_control/pid_gains/" + joint_names_[index]);
+    bool has_pid_params = pid_controllers_[index].init(nh);
+
+
     // Parse all HW-Interfaces available for each joint and store information
     for(unsigned int i=0; i<joint_interfaces.size(); i++)
     {
@@ -187,8 +192,12 @@ bool HWISwitchRobotHWSim::initSim(
       }
       else if(joint_interfaces[i] == "hardware_interface/PositionJointInterface")
       {
+        if (!has_pid_params) {
+          ROS_FATAL_STREAM_NAMED("hwi_switch_robot_hw_sim", joint_interfaces[i] << " is not supported unless you setup pid parameter for joint: " << joint_names_[index] );
+          return false;
+        }
         // Create position joint interface
-        ControlMethod control_method = POSITION;
+        ControlMethod control_method = POSITION_PID;
         if(i==0){ joint_control_methods_[index] = control_method; } //use first entry for startup
         map_hwinterface_to_controlmethod_.insert( std::pair<std::string, ControlMethod>(hw_interface_type, control_method) );
 
@@ -203,8 +212,12 @@ bool HWISwitchRobotHWSim::initSim(
       }
       else if(joint_interfaces[i] == "hardware_interface/VelocityJointInterface")
       {
+        if (!has_pid_params) {
+          ROS_FATAL_STREAM_NAMED("hwi_switch_robot_hw_sim", joint_interfaces[i] << " is not supported unless you setup pid parameter for joint: " << joint_names_[index] );
+          return false;
+        }
         // Create velocity joint interface
-        ControlMethod control_method = VELOCITY;
+        ControlMethod control_method = VELOCITY_PID;
         if(i==0){ joint_control_methods_[index] = control_method; } //use first entry for startup
         map_hwinterface_to_controlmethod_.insert( std::pair<std::string, ControlMethod>(hw_interface_type, control_method) );
 
@@ -234,19 +247,18 @@ bool HWISwitchRobotHWSim::initSim(
     }
     sim_joints_.push_back(joint);
 
-
-    // ToDo: Can a joint (gazebo::physics::JointPtr) be used for EFFORT if joint->SetMaxForce has been called before?
-    if (joint_control_methods_[index] == VELOCITY || joint_control_methods_[index] == POSITION)
-    {
-      // joint->SetMaxForce() must be called if joint->SetAngle() or joint->SetVelocity() are
-      // going to be called. joint->SetMaxForce() must *not* be called if joint->SetForce() is
-      // going to be called.
-      #if GAZEBO_MAJOR_VERSION > 2
-        joint->SetParam("fmax", 0, joint_effort_limits_[j]);
-      #else
-        joint->SetMaxForce(0, joint_effort_limits_[index]);
-      #endif
-    }
+    // // ToDo: Can a joint (gazebo::physics::JointPtr) be used for EFFORT if joint->SetMaxForce has been called before?
+    // if (joint_control_methods_[index] == VELOCITY || joint_control_methods_[index] == POSITION)
+    // {
+    //   // joint->SetMaxForce() must be called if joint->SetAngle() or joint->SetVelocity() are
+    //   // going to be called. joint->SetMaxForce() must *not* be called if joint->SetForce() is
+    //   // going to be called.
+    //   #if GAZEBO_MAJOR_VERSION > 2
+    //     joint->SetParam("fmax", 0, joint_effort_limits_[j]);
+    //   #else
+    //     joint->SetMaxForce(0, joint_effort_limits_[index]);
+    //   #endif
+    // }
 
     index++;
   }

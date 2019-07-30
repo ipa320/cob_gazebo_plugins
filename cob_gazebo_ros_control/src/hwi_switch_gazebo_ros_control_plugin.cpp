@@ -211,7 +211,11 @@ void HWISwitchGazeboRosControlPlugin::Load(gazebo::physics::ModelPtr parent, sdf
 void HWISwitchGazeboRosControlPlugin::Update()
 {
   // Get the simulation time and period
+#if GAZEBO_MAJOR_VERSION >= 8
   gazebo::common::Time gz_time_now = gazebo::physics::get_world()->SimTime();
+#else
+  gazebo::common::Time gz_time_now = parent_model_->GetWorld()->GetSimTime();
+#endif
   ros::Time sim_time_ros(gz_time_now.sec, gz_time_now.nsec);
   ros::Duration sim_period = sim_time_ros - last_update_sim_time_ros_;
 

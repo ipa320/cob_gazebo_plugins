@@ -45,10 +45,6 @@ bool HWISwitchRobotHWSim::initSim(
     ROS_INFO_STREAM("JointFiltering is disabled! DoF: "<<n_dof_);
   }
 
-  position_joints_.clear();
-  position_joints_.insert("test_joint");
-
-
   joint_names_.resize(n_dof_);
   joint_types_.resize(n_dof_);
   joint_lower_limits_.resize(n_dof_);

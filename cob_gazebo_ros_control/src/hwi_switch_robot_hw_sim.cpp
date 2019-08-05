@@ -147,9 +147,15 @@ bool HWISwitchRobotHWSim::initSim(
       ROS_DEBUG_STREAM_NAMED("hwi_switch_robot_hw_sim","Loading joint '" << joint_names_[index]
         << "' of type '" << joint_interfaces[i] << "'");
 
+      // Deprecated Syntax handling
+      std::string& hardware_interface = joint_interfaces[i];
+      if(hardware_interface == "EffortJointInterface" || hardware_interface == "PositionJointInterface" || hardware_interface == "VelocityJointInterface") {
+        ROS_WARN_STREAM("Deprecated syntax, please prepend 'hardware_interface/' to '" << hardware_interface << "' within the <hardwareInterface> tag in joint '" << joint_names_[j] << "'.");
+        hardware_interface = "hardware_interface/"+joint_interfaces[i];
+      }
+
       // Add hardware interface and joint to map of map_hwinterface_to_joints_
-      // ToDo: hardcoded namespace 'hardware_interface'?
-      std::string hw_interface_type = boost::algorithm::replace_all_copy(joint_interfaces[i], "/", "::");
+      std::string hw_interface_type = boost::algorithm::replace_all_copy(hardware_interface, "/", "::");
       if(map_hwinterface_to_joints_.find(hw_interface_type)!=map_hwinterface_to_joints_.end())
       {
         ROS_DEBUG_STREAM_NAMED("hwi_switch_robot_hw_sim", "HW-Interface " << hw_interface_type << " already registered. Adding joint " << joint_names_[index] << " to list.");
@@ -165,7 +171,7 @@ bool HWISwitchRobotHWSim::initSim(
         map_hwinterface_to_joints_.insert( std::pair< std::string, std::set<std::string> >(hw_interface_type, supporting_joints) );
       }
 
-      if(joint_interfaces[i] == "hardware_interface/EffortJointInterface")
+      if(hw_interface_type == "hardware_interface::EffortJointInterface")
       {
         // Create effort joint interface
         ControlMethod control_method = EFFORT;
@@ -181,7 +187,7 @@ bool HWISwitchRobotHWSim::initSim(
                         &joint_types_[index], &joint_lower_limits_[index], &joint_upper_limits_[index],
                         &joint_effort_limits_[index]);
       }
-      else if(joint_interfaces[i] == "hardware_interface/PositionJointInterface")
+      else if(hw_interface_type == "hardware_interface::PositionJointInterface")
       {
         // Create position joint interface
         ControlMethod control_method = POSITION;
@@ -197,7 +203,7 @@ bool HWISwitchRobotHWSim::initSim(
                         &joint_types_[index], &joint_lower_limits_[index], &joint_upper_limits_[index],
                         &joint_effort_limits_[index]);
       }
-      else if(joint_interfaces[i] == "hardware_interface/VelocityJointInterface")
+      else if(hw_interface_type == "hardware_interface::VelocityJointInterface")
       {
         // Create velocity joint interface
         ControlMethod control_method = VELOCITY;
@@ -216,7 +222,7 @@ bool HWISwitchRobotHWSim::initSim(
       else
       {
         ROS_FATAL_STREAM_NAMED("hwi_switch_robot_hw_sim","No matching hardware interface found for '"
-          << joint_interfaces[i] );
+          << hardware_interface );
         return false;
       }
     }

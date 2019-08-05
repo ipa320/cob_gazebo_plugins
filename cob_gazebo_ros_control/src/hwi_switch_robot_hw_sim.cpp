@@ -231,6 +231,19 @@ bool HWISwitchRobotHWSim::initSim(
     sim_joints_.push_back(joint);
 
 
+    // get physics engine type
+#if GAZEBO_MAJOR_VERSION >= 8
+    gazebo::physics::PhysicsEnginePtr physics = gazebo::physics::get_world()->Physics();
+#else
+    gazebo::physics::PhysicsEnginePtr physics = gazebo::physics::get_world()->GetPhysicsEngine();
+#endif
+    physics_type_ = physics->GetType();
+    if (physics_type_.empty())
+    {
+      ROS_WARN_STREAM_NAMED("default_robot_hw_sim", "No physics type found.");
+    }
+
+
     // ToDo: Can a joint (gazebo::physics::JointPtr) be used for EFFORT if joint->SetMaxForce has been called before?
     if (joint_control_methods_[index] == VELOCITY || joint_control_methods_[index] == POSITION)
     {

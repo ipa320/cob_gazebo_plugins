@@ -2,8 +2,8 @@
 Changelog for package cob_gazebo_ros_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.7.3 (2019-08-06)
+------------------
 * Merge pull request `#38 <https://github.com/ipa320/cob_gazebo_plugins/issues/38>`_ from benmaidel/melodic-devel
   [Melodic]
 * backwards compatibility wrt hardware interface prefix

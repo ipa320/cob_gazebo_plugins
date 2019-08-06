@@ -17,7 +17,7 @@
 
 // cob_gazebo_ros_control
 #include <cob_gazebo_ros_control/hwi_switch_robot_hw_sim.h>
-
+#include <boost/algorithm/string/replace.hpp>
 
 namespace cob_gazebo_ros_control
 {
@@ -44,10 +44,6 @@ bool HWISwitchRobotHWSim::initSim(
     n_dof_ = transmissions.size();
     ROS_INFO_STREAM("JointFiltering is disabled! DoF: "<<n_dof_);
   }
-
-  position_joints_.clear();
-  position_joints_.insert("test_joint");
-
 
   joint_names_.resize(n_dof_);
   joint_types_.resize(n_dof_);
@@ -151,9 +147,15 @@ bool HWISwitchRobotHWSim::initSim(
       ROS_DEBUG_STREAM_NAMED("hwi_switch_robot_hw_sim","Loading joint '" << joint_names_[index]
         << "' of type '" << joint_interfaces[i] << "'");
 
+      // Deprecated Syntax handling
+      std::string& hardware_interface = joint_interfaces[i];
+      if(hardware_interface == "EffortJointInterface" || hardware_interface == "PositionJointInterface" || hardware_interface == "VelocityJointInterface") {
+        ROS_WARN_STREAM("Deprecated syntax, please prepend 'hardware_interface/' to '" << hardware_interface << "' within the <hardwareInterface> tag in joint '" << joint_names_[j] << "'.");
+        hardware_interface = "hardware_interface/"+joint_interfaces[i];
+      }
+
       // Add hardware interface and joint to map of map_hwinterface_to_joints_
-      // ToDo: hardcoded namespace 'hardware_interface'?
-      std::string hw_interface_type = "hardware_interface::"+joint_interfaces[i];
+      std::string hw_interface_type = boost::algorithm::replace_all_copy(hardware_interface, "/", "::");
       if(map_hwinterface_to_joints_.find(hw_interface_type)!=map_hwinterface_to_joints_.end())
       {
         ROS_DEBUG_STREAM_NAMED("hwi_switch_robot_hw_sim", "HW-Interface " << hw_interface_type << " already registered. Adding joint " << joint_names_[index] << " to list.");
@@ -169,7 +171,7 @@ bool HWISwitchRobotHWSim::initSim(
         map_hwinterface_to_joints_.insert( std::pair< std::string, std::set<std::string> >(hw_interface_type, supporting_joints) );
       }
 
-      if(joint_interfaces[i] == "EffortJointInterface")
+      if(hw_interface_type == "hardware_interface::EffortJointInterface")
       {
         // Create effort joint interface
         ControlMethod control_method = EFFORT;
@@ -185,7 +187,7 @@ bool HWISwitchRobotHWSim::initSim(
                         &joint_types_[index], &joint_lower_limits_[index], &joint_upper_limits_[index],
                         &joint_effort_limits_[index]);
       }
-      else if(joint_interfaces[i] == "PositionJointInterface")
+      else if(hw_interface_type == "hardware_interface::PositionJointInterface")
       {
         // Create position joint interface
         ControlMethod control_method = POSITION;
@@ -201,7 +203,7 @@ bool HWISwitchRobotHWSim::initSim(
                         &joint_types_[index], &joint_lower_limits_[index], &joint_upper_limits_[index],
                         &joint_effort_limits_[index]);
       }
-      else if(joint_interfaces[i] == "VelocityJointInterface")
+      else if(hw_interface_type == "hardware_interface::VelocityJointInterface")
       {
         // Create velocity joint interface
         ControlMethod control_method = VELOCITY;
@@ -220,7 +222,7 @@ bool HWISwitchRobotHWSim::initSim(
       else
       {
         ROS_FATAL_STREAM_NAMED("hwi_switch_robot_hw_sim","No matching hardware interface found for '"
-          << joint_interfaces[i] );
+          << hardware_interface );
         return false;
       }
     }
@@ -233,6 +235,19 @@ bool HWISwitchRobotHWSim::initSim(
       return false;
     }
     sim_joints_.push_back(joint);
+
+
+    // get physics engine type
+#if GAZEBO_MAJOR_VERSION >= 8
+    gazebo::physics::PhysicsEnginePtr physics = gazebo::physics::get_world()->Physics();
+#else
+    gazebo::physics::PhysicsEnginePtr physics = gazebo::physics::get_world()->GetPhysicsEngine();
+#endif
+    physics_type_ = physics->GetType();
+    if (physics_type_.empty())
+    {
+      ROS_WARN_STREAM_NAMED("default_robot_hw_sim", "No physics type found.");
+    }
 
 
     // ToDo: Can a joint (gazebo::physics::JointPtr) be used for EFFORT if joint->SetMaxForce has been called before?

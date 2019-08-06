@@ -49,7 +49,6 @@ protected:
   bool enable_joint_filtering_;
   std::set< std::string > enabled_joints_;
 
-  std::set< std::string > position_joints_;
   std::map< std::string, std::set<std::string> > map_hwinterface_to_joints_;
   std::map< std::string, ControlMethod > map_hwinterface_to_controlmethod_;
 

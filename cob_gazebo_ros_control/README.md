@@ -47,8 +47,8 @@ With this plugin, you can now specify multiple HardwareInterfaces for the transm
     <transmission name="arm_1_trans">
       <type>transmission_interface/SimpleTransmission</type>
       <joint name="arm_1_joint">
-        <hardwareInterface>PositionJointInterface</hardwareInterface>
-        <hardwareInterface>VelocityJointInterface</hardwareInterface>
+        <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
       </joint>
       <actuator name="arm_1_motor">
         <mechanicalReduction>1</mechanicalReduction>

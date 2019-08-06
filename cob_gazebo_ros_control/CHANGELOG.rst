@@ -2,6 +2,20 @@
 Changelog for package cob_gazebo_ros_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#38 <https://github.com/ipa320/cob_gazebo_plugins/issues/38>`_ from benmaidel/melodic-devel
+  [Melodic]
+* backwards compatibility wrt hardware interface prefix
+* query physics engine type
+* remove obsolete member variable
+* adjust plugin readme
+* fix get simulation time for older gazebo version
+* fix interface_type inference
+* joint_interface should have prefix 'hardware_interface'
+* fix compilation error
+* Contributors: Benjamin Maidel, Felix Messmer, Shohei Fujii, fmessmer
+
 0.7.2 (2018-01-07)
 ------------------
 * Merge pull request `#34 <https://github.com/ipa320/cob_gazebo_plugins/issues/34>`_ from ipa320/kinetic_release_candidate

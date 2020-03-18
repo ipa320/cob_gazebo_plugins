@@ -2,6 +2,16 @@
 Changelog for package cob_gazebo_ros_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#41 <https://github.com/ipa320/cob_gazebo_plugins/issues/41>`_ from fmessmer/ci_updates
+  [travis] ci updates
+* catkin_lint fixes
+* Merge pull request `#40 <https://github.com/ipa320/cob_gazebo_plugins/issues/40>`_ from fmessmer/fix_warnings
+  fix catkin_package DEPENDS warning
+* fix catkin_package DEPENDS warning
+* Contributors: Felix Messmer, fmessmer
+
 0.7.3 (2019-08-06)
 ------------------
 * Merge pull request `#38 <https://github.com/ipa320/cob_gazebo_plugins/issues/38>`_ from benmaidel/melodic-devel

@@ -2,6 +2,9 @@
 Changelog for package cob_gazebo_plugins
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.7.3 (2019-08-06)
 ------------------
 

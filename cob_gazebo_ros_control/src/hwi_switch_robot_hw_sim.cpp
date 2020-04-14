@@ -150,7 +150,7 @@ bool HWISwitchRobotHWSim::initSim(
       // Deprecated Syntax handling
       std::string& hardware_interface = joint_interfaces[i];
       if(hardware_interface == "EffortJointInterface" || hardware_interface == "PositionJointInterface" || hardware_interface == "VelocityJointInterface") {
-        ROS_WARN_STREAM("Deprecated syntax, please prepend 'hardware_interface/' to '" << hardware_interface << "' within the <hardwareInterface> tag in joint '" << joint_names_[j] << "'.");
+        ROS_WARN_STREAM("Deprecated syntax, please prepend 'hardware_interface/' to '" << hardware_interface << "' within the <hardwareInterface> tag in joint '" << joint_names_[index] << "'.");
         hardware_interface = "hardware_interface/"+joint_interfaces[i];
       }
 
@@ -257,7 +257,7 @@ bool HWISwitchRobotHWSim::initSim(
       // going to be called. joint->SetMaxForce() must *not* be called if joint->SetForce() is
       // going to be called.
       #if GAZEBO_MAJOR_VERSION > 2
-        joint->SetParam("fmax", 0, joint_effort_limits_[j]);
+        joint->SetParam("fmax", 0, joint_effort_limits_[index]);
       #else
         joint->SetMaxForce(0, joint_effort_limits_[index]);
       #endif

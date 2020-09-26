@@ -2,6 +2,16 @@
 Changelog for package cob_gazebo_ros_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#47 <https://github.com/ipa320/cob_gazebo_plugins/issues/47>`_ from fmessmer/test_noetic
+  test noetic
+* Bump CMake version to avoid CMP0048 warning
+* Merge pull request `#44 <https://github.com/ipa320/cob_gazebo_plugins/issues/44>`_ from MatthiasNieuwenhuisen/fix_joint_filtering_segfault
+  Fix wrong array index occuring if using joint filtering
+* Fix wrong array index occuring if using joint filtering
+* Contributors: Felix Messmer, Matthias Nieuwenhuisen, fmessmer
+
 0.7.4 (2020-03-18)
 ------------------
 * Merge pull request `#41 <https://github.com/ipa320/cob_gazebo_plugins/issues/41>`_ from fmessmer/ci_updates

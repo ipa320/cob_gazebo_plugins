@@ -2,8 +2,8 @@
 Changelog for package cob_gazebo_ros_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.7.5 (2020-09-26)
+------------------
 * Merge pull request `#47 <https://github.com/ipa320/cob_gazebo_plugins/issues/47>`_ from fmessmer/test_noetic
   test noetic
 * Bump CMake version to avoid CMP0048 warning

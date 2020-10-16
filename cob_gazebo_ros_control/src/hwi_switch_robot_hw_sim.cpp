@@ -59,6 +59,7 @@ bool HWISwitchRobotHWSim::initSim(
   joint_effort_command_.resize(n_dof_);
   joint_position_command_.resize(n_dof_);
   joint_velocity_command_.resize(n_dof_);
+  joint_fmax_.resize(n_dof_);
 
   // Initialize values
   unsigned int index = 0;
@@ -249,6 +250,8 @@ bool HWISwitchRobotHWSim::initSim(
       ROS_WARN_STREAM_NAMED("default_robot_hw_sim", "No physics type found.");
     }
 
+      // recording initial fmax(coulomb friction) indicated in URDF before possible change for velocity control
+      joint_fmax_[index] = joint->GetParam("fmax", 0);
     if (joint_control_methods_[index] == VELOCITY || joint_control_methods_[index] == POSITION)
     {
         // joint->SetMaxForce(0, limit) must be called if joint->SetAngle() or joint->SetVelocity() are
@@ -367,12 +370,12 @@ void HWISwitchRobotHWSim::doSwitch(const std::list<hardware_interface::Controlle
                 #endif
               }
               else if(joint_control_methods_[i] == EFFORT){
-                // joint->SetMaxForce(0, 0.0) must be called if joint->SetForce() is
+                // joint->SetMaxForce(0, fmax) must be called if joint->SetForce() is
                 // going to be called.
                 #if GAZEBO_MAJOR_VERSION > 2
-                  sim_joints_[i]->SetParam("fmax", 0, 0.0);
+                  sim_joints_[i]->SetParam("fmax", 0, joint_fmax_[i]);
                 #else
-                  sim_joints_[i]->SetMaxForce(0, 0.0);
+                  sim_joints_[i]->SetMaxForce(0, joint_fmax_[i]);
                 #endif
               }
 

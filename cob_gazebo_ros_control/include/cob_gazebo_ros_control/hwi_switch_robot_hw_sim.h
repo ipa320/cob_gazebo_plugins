@@ -53,6 +53,8 @@ protected:
   std::map< std::string, ControlMethod > map_hwinterface_to_controlmethod_;
 
   bool state_valid_;
+
+  std::vector<double> joint_fmax_; // fmax (coulomb friction) indicated in the URDF
 };
 
 typedef boost::shared_ptr<HWISwitchRobotHWSim> HWISwitchRobotHWSimPtr;

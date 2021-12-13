@@ -1,24 +1,13 @@
 #include <cob_gazebo_plugins/gazebo_ros_mimic_joint.h>
 
-namespace gazebo
+namespace cob_gazebo_ros_control
 {
 
-MimicJoint::MimicJoint()
+void MimicJoint::Load(gazebo::physics::ModelPtr _parent, sdf::ElementPtr _sdf )
 {
-  this->joint_.reset();
-  this->mimic_joint_.reset();
-}
+  ROS_INFO_NAMED("mimic_joint", "Starting Mimic Joint Plugin");
 
-MimicJoint::~MimicJoint()
-{
-  //event::Events::DisconnectWorldUpdateBegin(this->update_connection_);
-}
-
-void MimicJoint::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf )
-{
   this->model_ = _parent;
-  this->world_ = this->model_->GetWorld();
-
 
   if (!_sdf->HasElement("jointName"))
   {
@@ -27,6 +16,7 @@ void MimicJoint::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf )
   }
   else
     this->joint_name_ = _sdf->GetElement("jointName")->Get<std::string>();
+  ROS_INFO_NAMED("mimic_joint", "joint_name_: %s", this->joint_name_.c_str() );
 
   if (!_sdf->HasElement("mimicJoint"))
   {
@@ -35,6 +25,7 @@ void MimicJoint::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf )
   }
   else
     this->mimic_joint_name_ = _sdf->GetElement("mimicJoint")->Get<std::string>();
+  ROS_INFO_NAMED("mimic_joint", "mimic_joint_name_: %s", this->mimic_joint_name_.c_str() );
 
   if (!_sdf->HasElement("offset"))
   {
@@ -54,25 +45,23 @@ void MimicJoint::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf )
 
 
   // Get the name of the parent model
-  std::string modelName = _sdf->GetParent()->Get<std::string>("name");
   this->joint_ = model_->GetJoint(joint_name_);
   this->mimic_joint_ = model_->GetJoint(mimic_joint_name_);
-  std::cout << "Plugin model name: " << modelName << ", joint_name: " << joint_name_ << ", mimic_joint_name: " << mimic_joint_name_ << "\n";
 
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
-  this->update_connection_ = event::Events::ConnectWorldUpdateBegin(
-      boost::bind(&MimicJoint::UpdateChild, this));
+  this->update_connection_ = gazebo::event::Events::ConnectWorldUpdateBegin(
+      std::bind(&MimicJoint::OnUpdate, this));
 }
 
-void MimicJoint::UpdateChild()
+void MimicJoint::OnUpdate()
 {
 #if GAZEBO_MAJOR_VERSION >= 8
   const double desired_angle = this->mimic_joint_->Position(0)*this->multiplier_ + this->offset_;
 #else
   const double desired_angle = this->mimic_joint_->GetAngle(0).Radian()*this->multiplier_ + this->offset_;
 #endif
-  std::cout << "desired_angle: " << desired_angle << "\n";
+
 #if GAZEBO_MAJOR_VERSION >= 9
   this->joint_->SetPosition(0, desired_angle, true);
 #else
@@ -82,5 +71,5 @@ void MimicJoint::UpdateChild()
 
 
 // Register this plugin with the simulator
-GZ_REGISTER_MODEL_PLUGIN(MimicJoint);
+GZ_REGISTER_MODEL_PLUGIN(MimicJoint)
 } // namespace

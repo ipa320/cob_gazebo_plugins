@@ -18,4 +18,7 @@
   <depend>gazebo_ros</depend>
   <depend>roscpp</depend>
 
+  <export>
+    <gazebo_ros plugin="${prefix}/cob_gazebo_plugins.xml"/>
+  </export>
 </package>

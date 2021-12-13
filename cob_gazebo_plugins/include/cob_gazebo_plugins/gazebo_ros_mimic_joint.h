@@ -53,9 +53,6 @@ class MimicJoint: public ModelPlugin
   /// \brief offset
   private: double offset_;
 
-  /// \brief proportionnal gain
-  private: double p_;
-
   /// \brief A pointer to the Gazebo joint
   private: physics::JointPtr joint_;
   
@@ -79,10 +76,7 @@ class MimicJoint: public ModelPlugin
 
 };
 
-/** \} */
-/// @}
 
-
-}
+} //namespace
 
 #endif

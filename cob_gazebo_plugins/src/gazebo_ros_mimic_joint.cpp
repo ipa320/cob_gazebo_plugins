@@ -1,8 +1,7 @@
 #include <cob_gazebo_plugins/gazebo_ros_mimic_joint.h>
 
-using namespace gazebo;
-
-GZ_REGISTER_MODEL_PLUGIN(MimicJoint);
+namespace gazebo
+{
 
 MimicJoint::MimicJoint()
 {
@@ -56,10 +55,9 @@ void MimicJoint::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf )
 
   // Get the name of the parent model
   std::string modelName = _sdf->GetParent()->Get<std::string>("name");
-  gzdbg << "Plugin model name: " << modelName << "\n";
-
   this->joint_ = model_->GetJoint(joint_name_);
   this->mimic_joint_ = model_->GetJoint(mimic_joint_name_);
+  std::cout << "Plugin model name: " << modelName << ", joint_name: " << joint_name_ << ", mimic_joint_name: " << mimic_joint_name_ << "\n";
 
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
@@ -74,10 +72,15 @@ void MimicJoint::UpdateChild()
 #else
   const double desired_angle = this->mimic_joint_->GetAngle(0).Radian()*this->multiplier_ + this->offset_;
 #endif
-
+  std::cout << "desired_angle: " << desired_angle << "\n";
 #if GAZEBO_MAJOR_VERSION >= 9
   this->joint_->SetPosition(0, desired_angle, true);
 #else
   this->joint_->SetPosition(0, desired_angle);
 #endif
 }
+
+
+// Register this plugin with the simulator
+GZ_REGISTER_MODEL_PLUGIN(MimicJoint);
+} // namespace

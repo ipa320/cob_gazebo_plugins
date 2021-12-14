@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(cob_gazebo_plugins)
 
+add_definitions(-std=c++11)
+
 find_package(catkin REQUIRED COMPONENTS gazebo_ros roscpp)
 
 # Depend on system install of Gazebo and SDFormat
@@ -20,10 +22,6 @@ include_directories(include
   ${Boost_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
   ${GAZEBO_INCLUDE_DIRS}
-)
-
-link_directories(
-  ${GAZEBO_LIBRARY_DIRS}
 )
 
 ## Plugins

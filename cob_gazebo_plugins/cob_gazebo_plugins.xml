@@ -1,0 +1,7 @@
+<library path="lib/libgazebo_ros_mimic_joint">
+  <class name="cob_gazebo_plugins/MimicJoint" type="cob_gazebo_plugins::MimicJoint" base_class_type="gazebo_ros::ModelPlugin">
+    <description>
+      A plugin to simulate mimic joints in gazebo
+    </description>
+  </class>
+</library>

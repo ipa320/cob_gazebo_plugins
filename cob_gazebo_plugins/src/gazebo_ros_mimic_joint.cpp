@@ -48,6 +48,12 @@ void MimicJoint::Load(gazebo::physics::ModelPtr _parent, sdf::ElementPtr _sdf )
   this->joint_ = model_->GetJoint(joint_name_);
   this->mimic_joint_ = model_->GetJoint(mimic_joint_name_);
 
+#if GAZEBO_MAJOR_VERSION > 2
+  this->joint_->SetParam("fmax", 0, 100.0);
+#else
+  this->joint_->SetMaxForce(0, 100.0);
+#endif
+
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
   this->update_connection_ = gazebo::event::Events::ConnectWorldUpdateBegin(

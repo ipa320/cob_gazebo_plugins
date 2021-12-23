@@ -2,6 +2,9 @@
 Changelog for package cob_gazebo_ros_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.7.6 (2021-12-23)
+------------------
+
 0.7.5 (2020-09-26)
 ------------------
 * Merge pull request `#47 <https://github.com/ipa320/cob_gazebo_plugins/issues/47>`_ from fmessmer/test_noetic

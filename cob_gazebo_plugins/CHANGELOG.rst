@@ -2,6 +2,18 @@
 Changelog for package cob_gazebo_plugins
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#49 <https://github.com/ipa320/cob_gazebo_plugins/issues/49>`_ from fmessmer/feature/mimic_plugin
+  add MimicJoint gazebo plugin
+* set max force for mimic joints
+* fix catkin_lint
+* fix plugin
+* export plugin
+* debug plugin
+* add MimicJoint gazebo plugin
+* Contributors: Felix Messmer, fmessmer
+
 0.7.5 (2020-09-26)
 ------------------
 * Merge pull request `#47 <https://github.com/ipa320/cob_gazebo_plugins/issues/47>`_ from fmessmer/test_noetic

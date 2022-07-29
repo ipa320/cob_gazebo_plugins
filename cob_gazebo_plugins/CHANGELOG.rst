@@ -2,6 +2,9 @@
 Changelog for package cob_gazebo_plugins
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.7.6 (2021-12-23)
 ------------------
 * Merge pull request `#49 <https://github.com/ipa320/cob_gazebo_plugins/issues/49>`_ from fmessmer/feature/mimic_plugin

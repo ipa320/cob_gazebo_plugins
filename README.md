@@ -11,7 +11,7 @@ cob_gazebo_plugins
 
 ## Travis - Continuous Integration
 
-Status: [![Build Status](https://travis-ci.com/ipa320/cob_gazebo_plugins.svg?branch=kinetic_dev)](https://travis-ci.com/ipa320/cob_gazebo_plugins)
+Status: [![Build Status](https://app.travis-ci.com/ipa320/cob_gazebo_plugins.svg?branch=kinetic_dev)](https://app.travis-ci.com/ipa320/cob_gazebo_plugins)
 
 ## ROS Buildfarm
 

@@ -59,6 +59,7 @@ bool HWISwitchRobotHWSim::initSim(
   joint_effort_command_.resize(n_dof_);
   joint_position_command_.resize(n_dof_);
   joint_velocity_command_.resize(n_dof_);
+  joint_fmax_.resize(n_dof_);
 
   // Initialize values
   unsigned int index = 0;
@@ -249,13 +250,12 @@ bool HWISwitchRobotHWSim::initSim(
       ROS_WARN_STREAM_NAMED("default_robot_hw_sim", "No physics type found.");
     }
 
-
-    // ToDo: Can a joint (gazebo::physics::JointPtr) be used for EFFORT if joint->SetMaxForce has been called before?
+      // recording initial fmax(coulomb friction) indicated in URDF before possible change for velocity control
+      joint_fmax_[index] = joint->GetParam("fmax", 0);
     if (joint_control_methods_[index] == VELOCITY || joint_control_methods_[index] == POSITION)
     {
-      // joint->SetMaxForce() must be called if joint->SetAngle() or joint->SetVelocity() are
-      // going to be called. joint->SetMaxForce() must *not* be called if joint->SetForce() is
-      // going to be called.
+        // joint->SetMaxForce(0, limit) must be called if joint->SetAngle() or joint->SetVelocity() are
+        // going to be called.
       #if GAZEBO_MAJOR_VERSION > 2
         joint->SetParam("fmax", 0, joint_effort_limits_[index]);
       #else
@@ -358,6 +358,26 @@ void HWISwitchRobotHWSim::doSwitch(const std::list<hardware_interface::Controlle
             pj_limits_interface_.reset();
 
             joint_control_methods_[i] = current_control_method;
+
+              if (joint_control_methods_[i] == VELOCITY || joint_control_methods_[i] == POSITION)
+              {
+                // joint->SetMaxForce(0, limit) must be called if joint->SetAngle() or joint->SetVelocity() are
+                // going to be called.
+                #if GAZEBO_MAJOR_VERSION > 2
+                  sim_joints_[i]->SetParam("fmax", 0, joint_effort_limits_[i]);
+                #else
+                  sim_joints_[i]->SetMaxForce(0, joint_effort_limits_[i]);
+                #endif
+              }
+              else if(joint_control_methods_[i] == EFFORT){
+                // joint->SetMaxForce(0, fmax) must be called if joint->SetForce() is
+                // going to be called.
+                #if GAZEBO_MAJOR_VERSION > 2
+                  sim_joints_[i]->SetParam("fmax", 0, joint_fmax_[i]);
+                #else
+                  sim_joints_[i]->SetMaxForce(0, joint_fmax_[i]);
+                #endif
+              }
 
             ROS_DEBUG_STREAM_NAMED("hwi_switch_robot_hw_sim", "Resource \'" << joint_names_[i] << "\' switched to HW-Interface \'" << res_it->hardware_interface << "\'");
           }
